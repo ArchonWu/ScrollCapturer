@@ -18,7 +18,7 @@ import androidx.navigation.NavController
 @Composable
 fun ScreenshotListScreen(navController: NavController) {
     Column {
-        AddPictureButton()
+//        AddPictureButton()
         ExpandingMenu()
     }
 }
@@ -42,7 +42,16 @@ fun AddPictureButton() {
 
 @Composable
 fun RemovePictureButton() {
+    Button(onClick = {}) {
+        Text("-")
+    }
+}
 
+@Composable
+fun StartStitchingButton(){
+    Button(onClick = {}) {
+        Text("STITCH")
+    }
 }
 
 @Composable
@@ -60,18 +69,9 @@ fun ExpandingMenu() {
     if (expanded) {
         Column(
         ) {
-            Button(onClick = {})
-            {
-                Text("Add Screenshots")
-            }
-            Button(onClick = {})
-            {
-                Text("Delete Screenshots")
-            }
-            Button(onClick = {})
-            {
-                Text("Start Stitching")
-            }
+            AddPictureButton()
+            RemovePictureButton()
+            StartStitchingButton()
         }
     }
 }
