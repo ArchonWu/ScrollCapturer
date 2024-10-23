@@ -1,14 +1,15 @@
 package com.example.scrollcapturer.screenshotListScreen
 
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -25,47 +26,54 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 
 @Composable
 fun ScreenshotListScreen(navController: NavController) {
+    val viewModel: ScreenshotListViewModel = viewModel()
 
-    var selectedImagesUri by remember {
-        mutableStateOf(listOf<Uri>())
-    }
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetMultipleContents()
-    ) {
-        selectedImagesUri.apply {
-            selectedImagesUri = selectedImagesUri + it
+        contract = ActivityResultContracts.GetMultipleContents(),
+        onResult = { uris: List<Uri> ->
+            viewModel.addImageUris(uris)
+            uris.forEach { uri ->
+                Log.d("ScreenshotListScreen", "Image added: $uri")
+            }
+
         }
-    }
+    )
 
     Box(
         contentAlignment = Alignment.TopEnd,
         modifier = Modifier
             .fillMaxSize()
     ) {
-        ScreenshotGrid(imageUriList = selectedImagesUri)
+        ScreenshotGrid(imageUriList = viewModel.selectedImagesUri)
         ExpandingMenu(imagePickerLauncher)
     }
 }
 
 @Composable
 fun ScreenshotGrid(imageUriList: List<Uri>) {
+    Log.d("ScreenshotGrid", "GRID IS CALLED: $imageUriList")
     LazyVerticalGrid(
         columns = GridCells.Fixed(5),   // 5 images per row
-        contentPadding = PaddingValues(8.dp),
-        modifier = Modifier.fillMaxSize()
-    ) {
-        items(imageUriList) { uri ->
-            ScreenshotSlot(uri = uri)
+        modifier = Modifier
+            .fillMaxSize()
+            .border(width = 2.dp, color = Color.Red),
+        content = {
+            items(imageUriList) { uri ->
+                ScreenshotSlot(uri = uri)
+            }
+
         }
-    }
+    )
 }
 
 @Composable
@@ -75,7 +83,8 @@ fun ScreenshotSlot(uri: Uri) {
         contentDescription = "screenshot",
         contentScale = ContentScale.Crop,   // crop image to this size
         modifier = Modifier
-            .fillMaxWidth()
+            .border(width = 2.dp, color = Color.Green)
+            .size(100.dp)
     )
 }
 
