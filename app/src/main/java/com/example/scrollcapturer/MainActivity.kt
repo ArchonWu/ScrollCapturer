@@ -4,17 +4,21 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.scrollcapturer.ui.theme.ScrollCapturerTheme
 import androidx.navigation.compose.rememberNavController
+import com.example.scrollcapturer.resultScreen.ResultScreen
 import com.example.scrollcapturer.screenshotListScreen.ScreenshotListScreen
 import com.example.scrollcapturer.stitchscreen.StitchScreen
 
@@ -23,17 +27,30 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            Greeting(name = "Pretty")
+            ScrollCapturerTheme {
+                Column(
+//                    modifier = Modifier.background(Color.LightGray)
+                )
+                {
+                    Greeting(name = "Pretty")
 
-            val navController = rememberNavController()
-            NavHost (navController = navController, startDestination = "screenshot_list_screen") {
-                composable("screenshot_list_screen"){
-                    ScreenshotListScreen(navController)
+
+                    val navController = rememberNavController()
+                    NavHost(
+                        navController = navController,
+                        startDestination = "screenshot_list_screen"
+                    ) {
+                        composable("screenshot_list_screen") {
+                            ScreenshotListScreen(navController)
+                        }
+                        composable("stitch_screen") {
+                            StitchScreen(navController)
+                        }
+                        composable("result_screen") {
+                            ResultScreen(navController)
+                        }
+                    }
                 }
-                composable("stitch_screen"){
-                    StitchScreen(navController)
-                }
-            }
 //            ScrollCapturerTheme {
 //                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
 //                    Greeting(
@@ -42,6 +59,7 @@ class MainActivity : ComponentActivity() {
 //                    )
 //                }
 //            }
+            }
         }
     }
 }
@@ -69,9 +87,11 @@ fun GreetingPreview() {
 // a "start" button to start stitching
 
 // a start screen to display all added photos
-    // a drag to sort added pictures function
+// a drag to sort added pictures function
 
 // the actual stitching function
 
 // a finish screen to display the final result of the stitched screen capture
 // a back button
+
+// floating app icon for auto scroll capture function

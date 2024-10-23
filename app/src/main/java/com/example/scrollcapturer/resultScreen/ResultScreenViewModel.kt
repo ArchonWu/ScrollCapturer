@@ -1,4 +1,6 @@
 package com.example.scrollcapturer.resultScreen
 
-class ResultScreenViewModel {
+import androidx.lifecycle.ViewModel
+
+class ResultScreenViewModel : ViewModel() {
 }

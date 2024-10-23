@@ -1,4 +1,6 @@
 package com.example.scrollcapturer.screenshotListScreen
 
-class ScreenshotListViewModel {
+import androidx.lifecycle.ViewModel
+
+class ScreenshotListViewModel : ViewModel() {
 }

@@ -1,6 +1,9 @@
 package com.example.scrollcapturer.screenshotListScreen
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
@@ -12,24 +15,25 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import java.lang.reflect.Modifier
 
 @Composable
 fun ScreenshotListScreen(navController: NavController) {
     Column {
-//        AddPictureButton()
         ExpandingMenu()
     }
 }
 
 @Composable
-fun ScreenshotEntry(){
+fun ScreenshotEntry() {
 
 }
 
 @Composable
-fun ScreenshotRow(){
+fun ScreenshotRow() {
 
 }
 
@@ -48,7 +52,7 @@ fun RemovePictureButton() {
 }
 
 @Composable
-fun StartStitchingButton(){
+fun StartStitchingButton() {
     Button(onClick = {}) {
         Text("STITCH")
     }
@@ -61,7 +65,7 @@ fun ExpandingMenu() {
     }
 
     // the "3 dots" button
-    IconButton(onClick = {expanded = !expanded}) {
+    IconButton(onClick = { expanded = !expanded }) {
         Icon(imageVector = Icons.Default.MoreVert, contentDescription = "More options")
     }
 
@@ -74,10 +78,4 @@ fun ExpandingMenu() {
             StartStitchingButton()
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ExpandingMenuPreview() {
-    ExpandingMenu()
 }

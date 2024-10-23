@@ -1,4 +1,6 @@
 package com.example.scrollcapturer.stitchscreen
 
-class StitchScreenViewModel {
+import androidx.lifecycle.ViewModel
+
+class StitchScreenViewModel : ViewModel() {
 }
