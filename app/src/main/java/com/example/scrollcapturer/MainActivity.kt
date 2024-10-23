@@ -4,15 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -20,7 +15,7 @@ import com.example.scrollcapturer.ui.theme.ScrollCapturerTheme
 import androidx.navigation.compose.rememberNavController
 import com.example.scrollcapturer.resultScreen.ResultScreen
 import com.example.scrollcapturer.screenshotListScreen.ScreenshotListScreen
-import com.example.scrollcapturer.stitchscreen.StitchScreen
+import com.example.scrollcapturer.mergescreen.MergeScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,9 +27,6 @@ class MainActivity : ComponentActivity() {
 //                    modifier = Modifier.background(Color.LightGray)
                 )
                 {
-                    Greeting(name = "Pretty")
-
-
                     val navController = rememberNavController()
                     NavHost(
                         navController = navController,
@@ -43,43 +35,20 @@ class MainActivity : ComponentActivity() {
                         composable("screenshot_list_screen") {
                             ScreenshotListScreen(navController)
                         }
-                        composable("stitch_screen") {
-                            StitchScreen(navController)
+                        composable("merge_screen") {
+                            MergeScreen(navController)
                         }
                         composable("result_screen") {
                             ResultScreen(navController)
                         }
                     }
                 }
-//            ScrollCapturerTheme {
-//                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-//                    Greeting(
-//                        name = "Android",
-//                        modifier = Modifier.padding(innerPadding)
-//                    )
-//                }
-//            }
             }
         }
     }
 }
 
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ScrollCapturerTheme {
-        Greeting("Android")
-    }
-}
 
 // maybe like a collapsible button (click on it to display more options)
 // a "+" button for adding screenshots

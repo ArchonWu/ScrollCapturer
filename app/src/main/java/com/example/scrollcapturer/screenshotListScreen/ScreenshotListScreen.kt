@@ -105,9 +105,9 @@ fun RemovePictureButton() {
 }
 
 @Composable
-fun StartStitchingButton() {
+fun StartMergingButton() {
     Button(onClick = {}) {
-        Text("STITCH")
+        Text("MERGE")
     }
 }
 
@@ -131,7 +131,7 @@ fun ExpandingMenu(imagePickerLauncher: ManagedActivityResultLauncher<String, Lis
         Column {
             AddPictureButton(imagePickerLauncher)
             RemovePictureButton()
-            StartStitchingButton()
+            StartMergingButton()
         }
     }
 }

@@ -1,8 +1,8 @@
-package com.example.scrollcapturer.stitchscreen
+package com.example.scrollcapturer.mergescreen
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 
 @Composable
-fun StitchScreen (navController: NavController) {
+fun MergeScreen (navController: NavController) {
 }
