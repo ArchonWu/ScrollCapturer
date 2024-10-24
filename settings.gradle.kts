@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "ScrollCapturer"
 include(":app")
- 
+include(":opencv")
