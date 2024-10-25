@@ -6,17 +6,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.scrollcapturer.ui.theme.ScrollCapturerTheme
 import androidx.navigation.compose.rememberNavController
 import com.example.scrollcapturer.resultScreen.ResultScreen
 import com.example.scrollcapturer.screenshotListScreen.ScreenshotListScreen
-import com.example.scrollcapturer.mergescreen.MergeScreen
+import com.example.scrollcapturer.stitchscreen.StitchScreen
 import org.opencv.android.OpenCVLoader
 
 class MainActivity : ComponentActivity() {
@@ -42,8 +38,8 @@ class MainActivity : ComponentActivity() {
                         composable("screenshot_list_screen") {
                             ScreenshotListScreen(navController)
                         }
-                        composable("merge_screen") {
-                            MergeScreen(navController)
+                        composable("stitch_screen") {
+                            StitchScreen(navController)
                         }
                         composable("result_screen") {
                             ResultScreen(navController)

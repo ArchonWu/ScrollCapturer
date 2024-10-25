@@ -55,7 +55,7 @@ fun ScreenshotListScreen(navController: NavController) {
             .fillMaxSize()
     ) {
         ScreenshotGrid(imageUriList = viewModel.selectedImagesUri)
-        ExpandingMenu(imagePickerLauncher)
+        ExpandingMenu(navController, imagePickerLauncher)
     }
 }
 
@@ -105,14 +105,16 @@ fun RemovePictureButton() {
 }
 
 @Composable
-fun StartMergingButton() {
-    Button(onClick = {}) {
-        Text("MERGE")
+fun StartStitchingButton(navController: NavController) {
+    Button(onClick = {
+        navController.navigate("stitch_screen")
+    }) {
+        Text("STITCH")
     }
 }
 
 @Composable
-fun ExpandingMenu(imagePickerLauncher: ManagedActivityResultLauncher<String, List<Uri>>) {
+fun ExpandingMenu(navController: NavController, imagePickerLauncher: ManagedActivityResultLauncher<String, List<Uri>>) {
 
     var expanded by remember {
         mutableStateOf(false)
@@ -131,7 +133,7 @@ fun ExpandingMenu(imagePickerLauncher: ManagedActivityResultLauncher<String, Lis
         Column {
             AddPictureButton(imagePickerLauncher)
             RemovePictureButton()
-            StartMergingButton()
+            StartStitchingButton(navController)
         }
     }
 }
