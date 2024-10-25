@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 
-class ScreenshotListViewModel : ViewModel() {
+class ScreenshotListSharedViewModel : ViewModel() {
     var selectedImagesUri: List<Uri> by mutableStateOf(emptyList())
         private set
 

@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Column
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -12,10 +13,13 @@ import com.example.scrollcapturer.ui.theme.ScrollCapturerTheme
 import androidx.navigation.compose.rememberNavController
 import com.example.scrollcapturer.resultScreen.ResultScreen
 import com.example.scrollcapturer.screenshotListScreen.ScreenshotListScreen
+import com.example.scrollcapturer.screenshotListScreen.ScreenshotListSharedViewModel
 import com.example.scrollcapturer.stitchscreen.StitchScreen
 import org.opencv.android.OpenCVLoader
 
 class MainActivity : ComponentActivity() {
+    private val screenshotListSharedViewModel: ScreenshotListSharedViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -36,10 +40,10 @@ class MainActivity : ComponentActivity() {
                         startDestination = "screenshot_list_screen"
                     ) {
                         composable("screenshot_list_screen") {
-                            ScreenshotListScreen(navController)
+                            ScreenshotListScreen(navController, screenshotListSharedViewModel)
                         }
                         composable("stitch_screen") {
-                            StitchScreen(navController)
+                            StitchScreen(navController, screenshotListSharedViewModel)
                         }
                         composable("result_screen") {
                             ResultScreen(navController)
