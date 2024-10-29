@@ -25,6 +25,8 @@ class MainActivity : ComponentActivity() {
 
         if (OpenCVLoader.initLocal()) {
             Log.i("OpenCV", "OpenCV successfully loaded.");
+        } else {
+            Log.e("OpenCV", "OpenCV initialization failed.");
         }
 
         enableEdgeToEdge()
@@ -38,6 +40,7 @@ class MainActivity : ComponentActivity() {
                     NavHost(
                         navController = navController,
                         startDestination = "screenshot_list_screen"
+//                        startDestination = "stitch_screen"
                     ) {
                         composable("screenshot_list_screen") {
                             ScreenshotListScreen(navController, screenshotListSharedViewModel)
