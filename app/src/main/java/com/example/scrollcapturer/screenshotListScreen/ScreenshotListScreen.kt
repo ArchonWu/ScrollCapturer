@@ -42,7 +42,6 @@ fun ScreenshotListScreen(navController: NavController, viewModel: ScreenshotList
             uris.forEach { uri ->
                 Log.d("ScreenshotListScreen_uri", "Image added: $uri")
             }
-
         }
     )
 

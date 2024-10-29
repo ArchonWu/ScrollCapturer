@@ -15,10 +15,12 @@ import com.example.scrollcapturer.resultScreen.ResultScreen
 import com.example.scrollcapturer.screenshotListScreen.ScreenshotListScreen
 import com.example.scrollcapturer.screenshotListScreen.ScreenshotListSharedViewModel
 import com.example.scrollcapturer.stitchscreen.StitchScreen
+import com.example.scrollcapturer.stitchscreen.StitchScreenViewModel
 import org.opencv.android.OpenCVLoader
 
 class MainActivity : ComponentActivity() {
     private val screenshotListSharedViewModel: ScreenshotListSharedViewModel by viewModels()
+    private val stitchScreenViewModel: StitchScreenViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,13 +42,14 @@ class MainActivity : ComponentActivity() {
                     NavHost(
                         navController = navController,
                         startDestination = "screenshot_list_screen"
-//                        startDestination = "stitch_screen"
                     ) {
                         composable("screenshot_list_screen") {
                             ScreenshotListScreen(navController, screenshotListSharedViewModel)
                         }
                         composable("stitch_screen") {
-                            StitchScreen(navController, screenshotListSharedViewModel)
+                            StitchScreen(
+                                navController, screenshotListSharedViewModel, stitchScreenViewModel
+                            )
                         }
                         composable("result_screen") {
                             ResultScreen(navController)
@@ -57,7 +60,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
 
 
 // maybe like a collapsible button (click on it to display more options)
