@@ -5,27 +5,36 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
 import org.opencv.android.Utils
 import org.opencv.core.DMatch
 import org.opencv.core.Mat
 import org.opencv.core.MatOfDMatch
 import org.opencv.core.MatOfKeyPoint
+import org.opencv.features2d.Features2d
 import org.opencv.features2d.FlannBasedMatcher
 import org.opencv.features2d.SIFT
 
 // handles the feature matching & stitching
 class StitchScreenViewModel : ViewModel() {
 
+    var visualizeImageList by mutableStateOf<List<ImageBitmap>>(emptyList())
+        private set
+
+    var flaggedImageList by mutableStateOf<List<ImageBitmap>>(emptyList())
+        private set
+
     fun stitchAllImages(imagesUri: List<Uri>, contentResolver: ContentResolver) {
 
         val imagesMats = convertUrisToMats(imagesUri, contentResolver)
-
         Log.d("StitchScreenViewModel", "finished conversion to mats: ${imagesMats.size}")
 
-        // iteratively stitches two images in the list:
-        // do feature matching, and images stitching
-        // feature matching only needs to be done on bottom half / top half
+        // iteratively stitches two images in the list: do feature matching, and images stitching
         var stitchedImage = imagesMats[0]
         for (i in 1 until imagesMats.size) {
             stitchedImage = stitchImage(stitchedImage, imagesMats[i])
@@ -33,10 +42,40 @@ class StitchScreenViewModel : ViewModel() {
 
     }
 
+    // visualize goodMatches
+    private fun visualizeMatches(
+        goodMatches: MatOfDMatch,
+        imageMat1: Mat,
+        imageMat2: Mat,
+        keypoints1: MatOfKeyPoint, // Add keypoints for image 1
+        keypoints2: MatOfKeyPoint  // Add keypoints for image 2
+    ): Bitmap {
+        val resultImage = Mat()
+
+        // Check if keypoints and goodMatches are valid
+        if (keypoints1.empty() || keypoints2.empty() || goodMatches.empty()) {
+            return Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+        }
+
+        // Draw matches using the actual keypoints
+        Features2d.drawMatches(
+            imageMat1,
+            keypoints1,
+            imageMat2,
+            keypoints2,
+            goodMatches,
+            resultImage
+        )
+
+        // Convert the resulting Mat to Bitmap
+        val resultImageBitmap = convertMatToBitmap(resultImage)
+        return resultImageBitmap
+    }
+
+
+    // perform the stitching (combining two images based on their good feature matches)
     private fun stitchImage(imageMat1: Mat, imageMat2: Mat): Mat {
         val goodMatches: MatOfDMatch = siftFeatureMatching(imageMat1, imageMat2)
-
-        // visualize goodMatches
 
         // apply transformation based on good matches and stitch images together
 
@@ -52,6 +91,7 @@ class StitchScreenViewModel : ViewModel() {
         val keypoints2 = MatOfKeyPoint()
         val descriptors2 = Mat()
 
+        // TODO: feature matching only needs to be done on bottom half / top half of images
         siftDetector.detectAndCompute(imageMat1, Mat(), keypoints1, descriptors1)
         siftDetector.detectAndCompute(imageMat2, Mat(), keypoints2, descriptors2)
         Log.d("StitchScreenViewModel", "Detected ${keypoints1.size()} keypoints in image 1.")
@@ -63,7 +103,7 @@ class StitchScreenViewModel : ViewModel() {
         flannMatcher.knnMatch(descriptors1, descriptors2, knnMatches, 2)
 
         // filter matches using the Lowe's ratio test
-        val ratioThresh = 0.6f
+        val ratioThresh = 0.3f
         val goodMatchesList = mutableListOf<DMatch>()
         for (match in knnMatches) {
             if (match.rows() > 1) {
@@ -77,9 +117,19 @@ class StitchScreenViewModel : ViewModel() {
         goodMatches.fromList(goodMatchesList)
         Log.d("SIFT", "${goodMatches.size()}")
 
+        // visualize the good matches
+        val visualizedMatchesBitmap = visualizeMatches(goodMatches, imageMat1, imageMat2, keypoints1, keypoints2)
+        val visualizedMatchesImageBitmap = visualizedMatchesBitmap.asImageBitmap()
+        visualizeImageList = visualizeImageList + visualizedMatchesImageBitmap
+
         return goodMatches
     }
 
+    private fun convertMatToBitmap(mat: Mat): Bitmap {
+        val bitmap = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888)
+        Utils.matToBitmap(mat, bitmap)
+        return bitmap
+    }
 
     private fun convertUrisToMats(
         imageUris: List<Uri>,
