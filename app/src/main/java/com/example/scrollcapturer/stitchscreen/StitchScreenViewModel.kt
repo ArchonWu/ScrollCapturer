@@ -36,9 +36,11 @@ class StitchScreenViewModel : ViewModel() {
     private fun stitchImage(imageMat1: Mat, imageMat2: Mat): Mat {
         val goodMatches: MatOfDMatch = siftFeatureMatching(imageMat1, imageMat2)
 
-        // draw matches
-        
-        return Mat()
+        // visualize goodMatches
+
+        // apply transformation based on good matches and stitch images together
+
+        return imageMat1
     }
 
     // https://docs.opencv.org/4.x/d5/d6f/tutorial_feature_flann_matcher.html
@@ -50,8 +52,8 @@ class StitchScreenViewModel : ViewModel() {
         val keypoints2 = MatOfKeyPoint()
         val descriptors2 = Mat()
 
-        siftDetector.detectAndCompute(imageMat1, Mat(), keypoints2, descriptors2)
-        siftDetector.detectAndCompute(imageMat2, Mat(), keypoints1, descriptors1)
+        siftDetector.detectAndCompute(imageMat1, Mat(), keypoints1, descriptors1)
+        siftDetector.detectAndCompute(imageMat2, Mat(), keypoints2, descriptors2)
         Log.d("StitchScreenViewModel", "Detected ${keypoints1.size()} keypoints in image 1.")
         Log.d("StitchScreenViewModel", "Detected ${keypoints2.size()} keypoints in image 2.")
 
