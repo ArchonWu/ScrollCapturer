@@ -66,6 +66,7 @@ fun StitchScreen(
         }
     }
 
+    // TODO: should be moved to a new screen
     // visualize goodMatches
 //        Box(
 //            modifier = Modifier
@@ -109,6 +110,14 @@ fun StitchScreen(
 //                    )
 //                }
 //            }
+//        }
+//    }
+//    Box(
+//        modifier = Modifier.fillMaxSize(),
+//        contentAlignment = Alignment.BottomStart
+//    ) {
+//        Button(onClick = { }) {
+//            Text("Preview")
 //        }
 //    }
 
