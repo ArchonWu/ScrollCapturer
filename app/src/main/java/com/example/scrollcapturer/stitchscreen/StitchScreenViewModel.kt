@@ -21,9 +21,13 @@ import org.opencv.features2d.SIFT
 import com.example.scrollcapturer.utils.ImageUtils
 import org.opencv.calib3d.Calib3d
 import org.opencv.calib3d.Calib3d.RANSAC
+import org.opencv.core.Core
+import org.opencv.core.CvType
 import org.opencv.core.MatOfPoint2f
 import org.opencv.core.Point
+import org.opencv.core.Scalar
 import org.opencv.core.Size
+import org.opencv.imgproc.Imgproc
 import org.opencv.imgproc.Imgproc.warpPerspective
 
 // handles the feature matching & stitching
@@ -57,11 +61,6 @@ class StitchScreenViewModel : ViewModel() {
     private fun stitchImage(imageMat1: Mat, imageMat2: Mat): Mat {
         val siftMatchResult = siftFeatureMatching(imageMat1, imageMat2)
 
-        // visualize the good matches
-        //        val visualizedMatchesBitmap = visualizeMatches(siftMatchResult, imageMat1, imageMat2)
-        //        val visualizedMatchesImageBitmap = visualizedMatchesBitmap.asImageBitmap()
-        //        visualizeImageList = visualizeImageList + visualizedMatchesImageBitmap
-
         // apply transformation based on good matches and stitch images together
         val homographyMatrix = calculateHomographyMatrix(siftMatchResult)
 
@@ -69,7 +68,7 @@ class StitchScreenViewModel : ViewModel() {
         val targetHeight = (imageMat1.rows() * 1.5).toInt()
         val resultImageMat = Mat()
 
-        // Warp image2 to align with image1 using the homography matrix
+        // warp image2 to align with image1 using the homography matrix
         warpPerspective(
             imageMat2,
             resultImageMat,
@@ -77,8 +76,11 @@ class StitchScreenViewModel : ViewModel() {
             Size(imageMat1.cols().toDouble(), targetHeight.toDouble())
         )
 
-        // place image1 onto the warped result to combine them
-        imageMat1.copyTo(resultImageMat.submat(0, imageMat1.rows(), 0, imageMat1.cols()))
+        val rowsToExclude = 100
+        val rowsToCopy = imageMat1.rows() - rowsToExclude
+
+        // place image1 onto the warped result to combine them, excluding the bottom few rows
+        imageMat1.submat(0, rowsToCopy, 0, imageMat1.cols()).copyTo(resultImageMat.submat(0, rowsToCopy, 0, imageMat1.cols()))
 
         return resultImageMat
     }
@@ -87,7 +89,7 @@ class StitchScreenViewModel : ViewModel() {
     // https://docs.opencv.org/4.x/d7/dff/tutorial_feature_homography.html
     private fun calculateHomographyMatrix(siftMatchResult: SiftMatchResult): Mat {
 
-        // Extract matched points
+        // extract matched points
         val obj = mutableListOf<Point>()
         val scene = mutableListOf<Point>()
         val listOfKeypointsObject = siftMatchResult.keypoints1.toList()
@@ -134,7 +136,6 @@ class StitchScreenViewModel : ViewModel() {
             resultImageMat
         )
 
-        // Convert the resulting Mat to Bitmap
         val resultImageBitmap = ImageUtils.convertMatToBitmap(resultImageMat)
         resultImageMat.release()
 
