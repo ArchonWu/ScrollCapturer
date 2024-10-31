@@ -2,7 +2,6 @@ package com.example.scrollcapturer.stitchscreen
 
 import android.content.ContentResolver
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.getValue
@@ -12,7 +11,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
 import com.example.scrollcapturer.models.SiftMatchResult
-import org.opencv.android.Utils
 import org.opencv.core.DMatch
 import org.opencv.core.Mat
 import org.opencv.core.MatOfDMatch
@@ -21,6 +19,12 @@ import org.opencv.features2d.Features2d
 import org.opencv.features2d.FlannBasedMatcher
 import org.opencv.features2d.SIFT
 import com.example.scrollcapturer.utils.ImageUtils
+import org.opencv.calib3d.Calib3d
+import org.opencv.calib3d.Calib3d.RANSAC
+import org.opencv.core.MatOfPoint2f
+import org.opencv.core.Point
+import org.opencv.core.Size
+import org.opencv.imgproc.Imgproc.warpPerspective
 
 // handles the feature matching & stitching
 class StitchScreenViewModel : ViewModel() {
@@ -31,32 +35,77 @@ class StitchScreenViewModel : ViewModel() {
     var flaggedImageList by mutableStateOf<List<ImageBitmap>>(emptyList())
         private set
 
-    fun stitchAllImages(imagesUri: List<Uri>, contentResolver: ContentResolver) {
+    var resultImageBitmap by mutableStateOf(ImageBitmap(1, 1))
+        private set
+
+    fun stitchAllImages(imagesUri: List<Uri>, contentResolver: ContentResolver): ImageBitmap {
 
         val imagesMats = ImageUtils.convertUrisToMats(imagesUri, contentResolver)
         Log.d("StitchScreenViewModel", "finished conversion to mats: ${imagesMats.size}")
 
         // iteratively stitches two images in the list: do feature matching, and images stitching
-        var stitchedImage = imagesMats[0]
+        var resultStitchedImage = imagesMats[0]
         for (i in 1 until imagesMats.size) {
-            stitchedImage = stitchImage(stitchedImage, imagesMats[i])
+            resultStitchedImage = stitchImage(resultStitchedImage, imagesMats[i])
         }
 
+        resultImageBitmap = ImageUtils.convertMatToBitmap(resultStitchedImage).asImageBitmap()
+        return resultImageBitmap
     }
 
     // perform the stitching (combining two images based on their good feature matches)
     private fun stitchImage(imageMat1: Mat, imageMat2: Mat): Mat {
         val siftMatchResult = siftFeatureMatching(imageMat1, imageMat2)
-        val goodMatches: MatOfDMatch = siftMatchResult.goodMatches
 
         // visualize the good matches
-//        val visualizedMatchesBitmap = visualizeMatches(siftMatchResult, imageMat1, imageMat2)
-//        val visualizedMatchesImageBitmap = visualizedMatchesBitmap.asImageBitmap()
-//        visualizeImageList = visualizeImageList + visualizedMatchesImageBitmap
+        //        val visualizedMatchesBitmap = visualizeMatches(siftMatchResult, imageMat1, imageMat2)
+        //        val visualizedMatchesImageBitmap = visualizedMatchesBitmap.asImageBitmap()
+        //        visualizeImageList = visualizeImageList + visualizedMatchesImageBitmap
 
         // apply transformation based on good matches and stitch images together
+        val homographyMatrix = calculateHomographyMatrix(siftMatchResult)
 
-        return imageMat1
+        // adjust the target height to roughly 1.5 times the original, accommodating overlap
+        val targetHeight = (imageMat1.rows() * 1.5).toInt()
+        val resultImageMat = Mat()
+
+        // Warp image2 to align with image1 using the homography matrix
+        warpPerspective(
+            imageMat2,
+            resultImageMat,
+            homographyMatrix,
+            Size(imageMat1.cols().toDouble(), targetHeight.toDouble())
+        )
+
+        // place image1 onto the warped result to combine them
+        imageMat1.copyTo(resultImageMat.submat(0, imageMat1.rows(), 0, imageMat1.cols()))
+
+        return resultImageMat
+    }
+
+    // code adapted from opencv documentation:
+    // https://docs.opencv.org/4.x/d7/dff/tutorial_feature_homography.html
+    private fun calculateHomographyMatrix(siftMatchResult: SiftMatchResult): Mat {
+
+        // Extract matched points
+        val obj = mutableListOf<Point>()
+        val scene = mutableListOf<Point>()
+        val listOfKeypointsObject = siftMatchResult.keypoints1.toList()
+        val listOfKeypointsScene = siftMatchResult.keypoints2.toList()
+        val goodMatches: MatOfDMatch = siftMatchResult.goodMatches
+
+        for (match in goodMatches.toList()) {
+            obj.add(listOfKeypointsObject[match.queryIdx].pt)
+            scene.add(listOfKeypointsScene[match.trainIdx].pt)
+        }
+
+        // create MatOfPoint2f for homography
+        val objMat = MatOfPoint2f(*obj.toTypedArray())
+        val sceneMat = MatOfPoint2f(*scene.toTypedArray())
+
+        // calculate homography
+        val homographyMatrix = Calib3d.findHomography(sceneMat, objMat, RANSAC, 5.0)
+        return homographyMatrix
     }
 
     // visualize goodMatches
@@ -68,7 +117,7 @@ class StitchScreenViewModel : ViewModel() {
         val goodMatches = matchResult.goodMatches
         val keypoints1 = matchResult.keypoints1
         val keypoints2 = matchResult.keypoints2
-        val resultImage = Mat()
+        val resultImageMat = Mat()
 
         // check if keypoints and goodMatches are valid
         if (keypoints1.empty() || keypoints2.empty() || goodMatches.empty()) {
@@ -82,12 +131,12 @@ class StitchScreenViewModel : ViewModel() {
             imageMat2,
             keypoints2,
             goodMatches,
-            resultImage
+            resultImageMat
         )
 
         // Convert the resulting Mat to Bitmap
-        val resultImageBitmap = ImageUtils.convertMatToBitmap(resultImage)
-        resultImage.release()
+        val resultImageBitmap = ImageUtils.convertMatToBitmap(resultImageMat)
+        resultImageMat.release()
 
         return resultImageBitmap
     }

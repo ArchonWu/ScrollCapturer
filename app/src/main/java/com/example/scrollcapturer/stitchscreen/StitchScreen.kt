@@ -60,6 +60,7 @@ fun StitchScreen(
                         contentDescription = "screenshot",
                         modifier = Modifier
                             .size(400.dp)
+                            .border(width = 2.dp, color = Color.Red)
                     )
                 }
             }
@@ -125,7 +126,10 @@ fun StitchScreen(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.BottomEnd
     ) {
-        Button(onClick = { viewModel.stitchAllImages(imageUriList, contentResolver) }) {
+        Button(onClick = {
+            viewModel.stitchAllImages(imageUriList, contentResolver)
+            navController.navigate("result_screen")
+        }) {
             Text("Start Stitching")
         }
     }

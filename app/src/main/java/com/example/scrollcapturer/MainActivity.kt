@@ -12,6 +12,7 @@ import androidx.navigation.compose.composable
 import com.example.scrollcapturer.ui.theme.ScrollCapturerTheme
 import androidx.navigation.compose.rememberNavController
 import com.example.scrollcapturer.resultScreen.ResultScreen
+import com.example.scrollcapturer.resultScreen.ResultScreenViewModel
 import com.example.scrollcapturer.screenshotListScreen.ScreenshotListScreen
 import com.example.scrollcapturer.screenshotListScreen.ScreenshotListSharedViewModel
 import com.example.scrollcapturer.stitchscreen.StitchScreen
@@ -52,7 +53,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable("result_screen") {
-                            ResultScreen(navController)
+                            ResultScreen(navController, stitchScreenViewModel)
                         }
                     }
                 }
