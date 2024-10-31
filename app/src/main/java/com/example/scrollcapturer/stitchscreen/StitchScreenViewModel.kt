@@ -11,6 +11,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
+import com.example.scrollcapturer.models.SiftMatchResult
 import org.opencv.android.Utils
 import org.opencv.core.DMatch
 import org.opencv.core.Mat
@@ -44,15 +45,16 @@ class StitchScreenViewModel : ViewModel() {
 
     // visualize goodMatches
     private fun visualizeMatches(
-        goodMatches: MatOfDMatch,
+        matchResult: SiftMatchResult,
         imageMat1: Mat,
-        imageMat2: Mat,
-        keypoints1: MatOfKeyPoint, // Add keypoints for image 1
-        keypoints2: MatOfKeyPoint  // Add keypoints for image 2
+        imageMat2: Mat
     ): Bitmap {
+        val goodMatches = matchResult.goodMatches
+        val keypoints1 = matchResult.keypoints1
+        val keypoints2 = matchResult.keypoints2
         val resultImage = Mat()
 
-        // Check if keypoints and goodMatches are valid
+        // check if keypoints and goodMatches are valid
         if (keypoints1.empty() || keypoints2.empty() || goodMatches.empty()) {
             return Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
         }
@@ -69,13 +71,22 @@ class StitchScreenViewModel : ViewModel() {
 
         // Convert the resulting Mat to Bitmap
         val resultImageBitmap = convertMatToBitmap(resultImage)
+        resultImage.release()
+
         return resultImageBitmap
     }
 
 
     // perform the stitching (combining two images based on their good feature matches)
     private fun stitchImage(imageMat1: Mat, imageMat2: Mat): Mat {
-        val goodMatches: MatOfDMatch = siftFeatureMatching(imageMat1, imageMat2)
+        val siftMatchResult = siftFeatureMatching(imageMat1, imageMat2)
+        val goodMatches: MatOfDMatch = siftMatchResult.goodMatches
+
+        // visualize the good matches
+        val visualizedMatchesBitmap =
+            visualizeMatches(siftMatchResult, imageMat1, imageMat2)
+        val visualizedMatchesImageBitmap = visualizedMatchesBitmap.asImageBitmap()
+        visualizeImageList = visualizeImageList + visualizedMatchesImageBitmap
 
         // apply transformation based on good matches and stitch images together
 
@@ -84,7 +95,7 @@ class StitchScreenViewModel : ViewModel() {
 
     // https://docs.opencv.org/4.x/d5/d6f/tutorial_feature_flann_matcher.html
     // detect the keypoints using SIFT Detector, and compute the descriptors
-    private fun siftFeatureMatching(imageMat1: Mat, imageMat2: Mat): MatOfDMatch {
+    private fun siftFeatureMatching(imageMat1: Mat, imageMat2: Mat): SiftMatchResult {
         val siftDetector: SIFT = SIFT.create()
         val keypoints1 = MatOfKeyPoint()
         val descriptors1 = Mat()
@@ -117,12 +128,7 @@ class StitchScreenViewModel : ViewModel() {
         goodMatches.fromList(goodMatchesList)
         Log.d("SIFT", "${goodMatches.size()}")
 
-        // visualize the good matches
-        val visualizedMatchesBitmap = visualizeMatches(goodMatches, imageMat1, imageMat2, keypoints1, keypoints2)
-        val visualizedMatchesImageBitmap = visualizedMatchesBitmap.asImageBitmap()
-        visualizeImageList = visualizeImageList + visualizedMatchesImageBitmap
-
-        return goodMatches
+        return SiftMatchResult(goodMatches, keypoints1, keypoints2)
     }
 
     private fun convertMatToBitmap(mat: Mat): Bitmap {
