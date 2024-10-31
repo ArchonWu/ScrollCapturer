@@ -20,6 +20,7 @@ import org.opencv.core.MatOfKeyPoint
 import org.opencv.features2d.Features2d
 import org.opencv.features2d.FlannBasedMatcher
 import org.opencv.features2d.SIFT
+import com.example.scrollcapturer.utils.ImageUtils
 
 // handles the feature matching & stitching
 class StitchScreenViewModel : ViewModel() {
@@ -32,7 +33,7 @@ class StitchScreenViewModel : ViewModel() {
 
     fun stitchAllImages(imagesUri: List<Uri>, contentResolver: ContentResolver) {
 
-        val imagesMats = convertUrisToMats(imagesUri, contentResolver)
+        val imagesMats = ImageUtils.convertUrisToMats(imagesUri, contentResolver)
         Log.d("StitchScreenViewModel", "finished conversion to mats: ${imagesMats.size}")
 
         // iteratively stitches two images in the list: do feature matching, and images stitching
@@ -85,7 +86,7 @@ class StitchScreenViewModel : ViewModel() {
         )
 
         // Convert the resulting Mat to Bitmap
-        val resultImageBitmap = convertMatToBitmap(resultImage)
+        val resultImageBitmap = ImageUtils.convertMatToBitmap(resultImage)
         resultImage.release()
 
         return resultImageBitmap
@@ -128,51 +129,4 @@ class StitchScreenViewModel : ViewModel() {
 
         return SiftMatchResult(goodMatches, keypoints1, keypoints2)
     }
-
-    private fun convertMatToBitmap(mat: Mat): Bitmap {
-        val bitmap = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888)
-        Utils.matToBitmap(mat, bitmap)
-        return bitmap
-    }
-
-    private fun convertUrisToMats(
-        imageUris: List<Uri>,
-        contentResolver: ContentResolver
-    ): MutableList<Mat> {
-        val imageMats = mutableListOf<Mat>()
-
-        // convert to bitmaps
-        for (uri in imageUris) {
-            val bitmap = convertUriToBitmap(uri, contentResolver)
-
-            if (bitmap != null) {
-                // convert to mats
-                val mat = Mat()
-                Utils.bitmapToMat(bitmap, mat)
-                imageMats.add(mat)
-            }
-        }
-
-        return imageMats
-    }
-
-    private fun convertUriToBitmap(uri: Uri, contentResolver: ContentResolver): Bitmap? {
-//        try {
-//            val bitmap: Bitmap =
-//                MediaStore.Images.Media.getBitmap(contentResolver, uri);  // deprecated
-//            return bitmap
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//            return null
-//        }
-
-        return try {
-            val inputStream = contentResolver.openInputStream(uri)
-            BitmapFactory.decodeStream(inputStream)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
-    }
-
 }
