@@ -43,6 +43,21 @@ class StitchScreenViewModel : ViewModel() {
 
     }
 
+    // perform the stitching (combining two images based on their good feature matches)
+    private fun stitchImage(imageMat1: Mat, imageMat2: Mat): Mat {
+        val siftMatchResult = siftFeatureMatching(imageMat1, imageMat2)
+        val goodMatches: MatOfDMatch = siftMatchResult.goodMatches
+
+        // visualize the good matches
+//        val visualizedMatchesBitmap = visualizeMatches(siftMatchResult, imageMat1, imageMat2)
+//        val visualizedMatchesImageBitmap = visualizedMatchesBitmap.asImageBitmap()
+//        visualizeImageList = visualizeImageList + visualizedMatchesImageBitmap
+
+        // apply transformation based on good matches and stitch images together
+
+        return imageMat1
+    }
+
     // visualize goodMatches
     private fun visualizeMatches(
         matchResult: SiftMatchResult,
@@ -59,7 +74,7 @@ class StitchScreenViewModel : ViewModel() {
             return Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
         }
 
-        // Draw matches using the actual keypoints
+        // draw matches using the actual keypoints
         Features2d.drawMatches(
             imageMat1,
             keypoints1,
@@ -74,23 +89,6 @@ class StitchScreenViewModel : ViewModel() {
         resultImage.release()
 
         return resultImageBitmap
-    }
-
-
-    // perform the stitching (combining two images based on their good feature matches)
-    private fun stitchImage(imageMat1: Mat, imageMat2: Mat): Mat {
-        val siftMatchResult = siftFeatureMatching(imageMat1, imageMat2)
-        val goodMatches: MatOfDMatch = siftMatchResult.goodMatches
-
-        // visualize the good matches
-        val visualizedMatchesBitmap =
-            visualizeMatches(siftMatchResult, imageMat1, imageMat2)
-        val visualizedMatchesImageBitmap = visualizedMatchesBitmap.asImageBitmap()
-        visualizeImageList = visualizeImageList + visualizedMatchesImageBitmap
-
-        // apply transformation based on good matches and stitch images together
-
-        return imageMat1
     }
 
     // https://docs.opencv.org/4.x/d5/d6f/tutorial_feature_flann_matcher.html
@@ -114,7 +112,7 @@ class StitchScreenViewModel : ViewModel() {
         flannMatcher.knnMatch(descriptors1, descriptors2, knnMatches, 2)
 
         // filter matches using the Lowe's ratio test
-        val ratioThresh = 0.3f
+        val ratioThresh = 0.6f
         val goodMatchesList = mutableListOf<DMatch>()
         for (match in knnMatches) {
             if (match.rows() > 1) {

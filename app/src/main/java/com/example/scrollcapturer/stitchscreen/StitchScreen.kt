@@ -44,66 +44,54 @@ fun StitchScreen(
     val visualizeImageList = viewModel.visualizeImageList
     val flaggedImageList = viewModel.flaggedImageList
 
-    Row(
+
+    Box(
         modifier = Modifier
-            .fillMaxSize()
-            .border(width = 5.dp, color = Color.Yellow)
+            .fillMaxSize(),
+        contentAlignment = Alignment.Center
     ) {
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth(0.5f)
-//            .fillMaxSize()
-                .fillMaxHeight()
-                .border(width = 6.dp, Color.Blue),
-//        contentAlignment = Alignment.Center
-            contentAlignment = Alignment.TopStart
-        ) {
-            if (imageUriList.isEmpty()) {
-                Text(text = "NO IMAGES WERE ADDED")
-            } else {
-                LazyColumn {
-                    items(imageUriList) { uri ->
-                        Image(
-                            painter = rememberAsyncImagePainter(model = uri),
-                            contentDescription = "screenshot",
-                            modifier = Modifier
-                                .size(400.dp)
-                        )
-                    }
-                }
-            }
-        }
-
-        // visualize goodMatches
-        Box(
-            modifier = Modifier
-                .fillMaxWidth(1f)
-//            .fillMaxSize()
-                .fillMaxHeight()
-                .border(width = 6.dp, Color.Magenta),
-            contentAlignment = Alignment.TopEnd
-        ) {
-            if (visualizeImageList.isEmpty()) {
-                Text(text = "NO IMAGES WERE ADDED")
-            } else {
-                LazyColumn {
-                    items(visualizeImageList) { image ->
-                        Image(
-                            bitmap = image,
-                            contentDescription = "visualize good matches image",
-                            modifier = Modifier
-                                .size(400.dp)
-                        )
-                    }
+        if (imageUriList.isEmpty()) {
+            Text(text = "NO IMAGES WERE ADDED")
+        } else {
+            LazyColumn {
+                items(imageUriList) { uri ->
+                    Image(
+                        painter = rememberAsyncImagePainter(model = uri),
+                        contentDescription = "screenshot",
+                        modifier = Modifier
+                            .size(400.dp)
+                    )
                 }
             }
         }
     }
 
+    // visualize goodMatches
+//        Box(
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .border(width = 6.dp, Color.Magenta),
+//            contentAlignment = Alignment.TopEnd
+//        ) {
+//            if (visualizeImageList.isEmpty()) {
+//                Text(text = "NO IMAGES WERE ADDED")
+//            } else {
+//                LazyColumn {
+//                    items(visualizeImageList) { image ->
+//                        Image(
+//                            bitmap = image,
+//                            contentDescription = "visualize good matches image",
+//                            modifier = Modifier
+//                                .size(400.dp)
+//                        )
+//                    }
+//                }
+//            }
+//        }
 
-    // Display flagged images if there are too few goodMatches detected
-    // otherwise display a "no problem detected" text with a green tick
+
+// Display flagged images if there are too few goodMatches detected
+// otherwise display a "no problem detected" text with a green tick
 //    Box(
 //        modifier = Modifier.fillMaxSize(),
 //        contentAlignment = Alignment.TopEnd
