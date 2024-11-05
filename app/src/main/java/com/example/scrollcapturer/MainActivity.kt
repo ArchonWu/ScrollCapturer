@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Column
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.scrollcapturer.ui.theme.ScrollCapturerTheme
@@ -17,8 +18,10 @@ import com.example.scrollcapturer.screenshotListScreen.ScreenshotListScreen
 import com.example.scrollcapturer.screenshotListScreen.ScreenshotListSharedViewModel
 import com.example.scrollcapturer.stitchscreen.StitchScreen
 import com.example.scrollcapturer.stitchscreen.StitchScreenViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import org.opencv.android.OpenCVLoader
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val screenshotListSharedViewModel: ScreenshotListSharedViewModel by viewModels()
     private val stitchScreenViewModel: StitchScreenViewModel by viewModels()

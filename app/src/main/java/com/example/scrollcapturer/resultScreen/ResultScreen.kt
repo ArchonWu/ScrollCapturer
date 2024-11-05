@@ -10,6 +10,10 @@ import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,6 +30,7 @@ fun ResultScreen(navController: NavController, viewModel: StitchScreenViewModel)
     val resultImageBitmap = viewModel.resultImageBitmap
     Text("welcome to result screen")
     ResultImage(resultImageBitmap)
+    SaveButton()
 }
 
 @Composable
@@ -33,7 +38,8 @@ fun ResultImage(resultImageBitmap: ImageBitmap) {
     Box(
         contentAlignment = Alignment.TopCenter,
         modifier = Modifier
-            .fillMaxSize()
+//            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
 //            .border(2.dp, color = Color.Green)
     )
     {
@@ -42,17 +48,17 @@ fun ResultImage(resultImageBitmap: ImageBitmap) {
             contentDescription = "result of stitching",
             modifier = Modifier
 //                .fillMaxSize()
-                .fillMaxHeight()
-                .align(Alignment.Center)
+//                .fillMaxHeight()
+                .fillMaxWidth()
+//                .align(Alignment.Center)
                 .border(width = 2.dp, color = Color.Yellow)
-//                .scrollable(
-//                    orientation = Orientation.Vertical,
-//                    state = ScrollableState {  },
-//                    enabled = true,
-//                    reverseDirection = false,
-//                    flingBehavior = null,
-//                    interactionSource = TODO()
-//                )
         )
+    }
+}
+
+@Composable
+fun SaveButton() {
+    Button(onClick = {}) {
+        Text("SAVE")
     }
 }

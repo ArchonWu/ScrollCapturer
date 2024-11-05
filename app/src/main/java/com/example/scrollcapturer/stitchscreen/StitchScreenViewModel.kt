@@ -29,9 +29,14 @@ import org.opencv.core.Scalar
 import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
 import org.opencv.imgproc.Imgproc.warpPerspective
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
 // handles the feature matching & stitching
-class StitchScreenViewModel : ViewModel() {
+@HiltViewModel
+class StitchScreenViewModel @Inject constructor(
+    val screenHeight: Int
+) : ViewModel() {
 
     var visualizeImageList by mutableStateOf<List<ImageBitmap>>(emptyList())
         private set
@@ -80,7 +85,8 @@ class StitchScreenViewModel : ViewModel() {
         val rowsToCopy = imageMat1.rows() - rowsToExclude
 
         // place image1 onto the warped result to combine them, excluding the bottom few rows
-        imageMat1.submat(0, rowsToCopy, 0, imageMat1.cols()).copyTo(resultImageMat.submat(0, rowsToCopy, 0, imageMat1.cols()))
+        imageMat1.submat(0, rowsToCopy, 0, imageMat1.cols())
+            .copyTo(resultImageMat.submat(0, rowsToCopy, 0, imageMat1.cols()))
 
         return resultImageMat
     }
