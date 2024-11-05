@@ -96,11 +96,10 @@ class StitchScreenViewModel @Inject constructor(
         val minY = projectedPoints.minOf { it.y }.toInt()
         val maxY = projectedPoints.maxOf { it.y }.toInt()
 
-        // use the maximum y-coordinate to set the height
+        // use the maximum y-coordinate to set the combined image height
         val targetHeight = maxY
 
         val resultImageMat = Mat(targetHeight, imageMat1.cols(), imageMat1.type())
-        Log.d("resultImageMat", "${resultImageMat.size()}")
 
         // warp image2 to align with image1 using the homography matrix
         warpPerspective(
@@ -110,10 +109,13 @@ class StitchScreenViewModel @Inject constructor(
             Size(imageMat1.cols().toDouble(), targetHeight.toDouble())
         )
 
+        val bottomIrrelevantPixels = 80
+        val rowsToCopy = imageMat1.rows() - bottomIrrelevantPixels
+
         // place image1 onto the warped result
         imageMat1
-            .submat(0, imageMat1.rows(), 0, imageMat1.cols())
-            .copyTo(resultImageMat.submat(0, imageMat1.rows(), 0, imageMat1.cols()))
+            .submat(0, rowsToCopy, 0, imageMat1.cols())
+            .copyTo(resultImageMat.submat(0, rowsToCopy, 0, imageMat1.cols()))
 
         return resultImageMat
     }
