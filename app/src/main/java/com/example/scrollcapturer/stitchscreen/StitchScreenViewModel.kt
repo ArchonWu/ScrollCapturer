@@ -109,8 +109,8 @@ class StitchScreenViewModel @Inject constructor(
             Size(imageMat1.cols().toDouble(), targetHeight.toDouble())
         )
 
-        val bottomIrrelevantPixels = 80
-        val rowsToCopy = imageMat1.rows() - bottomIrrelevantPixels
+        val bottomIrrelevantRows = 80
+        val rowsToCopy = imageMat1.rows() - bottomIrrelevantRows
 
         // place image1 onto the warped result
         imageMat1
