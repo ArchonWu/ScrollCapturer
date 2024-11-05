@@ -10,6 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.scrollcapturer.models.SiftMatchResult
 import org.opencv.core.DMatch
 import org.opencv.core.Mat
@@ -22,14 +23,16 @@ import com.example.scrollcapturer.utils.ImageUtils
 import org.opencv.calib3d.Calib3d
 import org.opencv.calib3d.Calib3d.RANSAC
 import org.opencv.core.Core
-import org.opencv.core.CvType
 import org.opencv.core.MatOfPoint2f
 import org.opencv.core.Point
-import org.opencv.core.Scalar
 import org.opencv.core.Size
-import org.opencv.imgproc.Imgproc
 import org.opencv.imgproc.Imgproc.warpPerspective
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.opencv.core.MatOfPoint
+import org.opencv.core.Scalar
+import org.opencv.imgproc.Imgproc
 import javax.inject.Inject
 
 // handles the feature matching & stitching
@@ -49,16 +52,19 @@ class StitchScreenViewModel @Inject constructor(
 
     fun stitchAllImages(imagesUri: List<Uri>, contentResolver: ContentResolver): ImageBitmap {
 
-        val imagesMats = ImageUtils.convertUrisToMats(imagesUri, contentResolver)
-        Log.d("StitchScreenViewModel", "finished conversion to mats: ${imagesMats.size}")
+        viewModelScope.launch(Dispatchers.IO) {
 
-        // iteratively stitches two images in the list: do feature matching, and images stitching
-        var resultStitchedImage = imagesMats[0]
-        for (i in 1 until imagesMats.size) {
-            resultStitchedImage = stitchImage(resultStitchedImage, imagesMats[i])
+            val imagesMats = ImageUtils.convertUrisToMats(imagesUri, contentResolver)
+
+            // iteratively stitches two images in the list: do feature matching, and images stitching
+            var resultStitchedImage = imagesMats[0]
+            for (i in 1 until imagesMats.size) {
+                resultStitchedImage = stitchImage(resultStitchedImage, imagesMats[i])
+            }
+
+            resultImageBitmap = ImageUtils.convertMatToBitmap(resultStitchedImage).asImageBitmap()
+
         }
-
-        resultImageBitmap = ImageUtils.convertMatToBitmap(resultStitchedImage).asImageBitmap()
         return resultImageBitmap
     }
 
@@ -69,9 +75,32 @@ class StitchScreenViewModel @Inject constructor(
         // apply transformation based on good matches and stitch images together
         val homographyMatrix = calculateHomographyMatrix(siftMatchResult)
 
-        // adjust the target height to roughly 1.5 times the original, accommodating overlap
-        val targetHeight = (imageMat1.rows() * 1.5).toInt()
-        val resultImageMat = Mat()
+        // get the corners of imageMat2
+        val corners = MatOfPoint2f(
+            Point(0.0, 0.0),
+            Point(imageMat2.cols().toDouble(), 0.0),
+            Point(imageMat2.cols().toDouble(), imageMat2.rows().toDouble()),
+            Point(0.0, imageMat2.rows().toDouble())
+        )
+
+        // project the corners of imageMat2 to imageMat1's coordinate space
+        val projectedCorners = MatOfPoint2f()
+        Core.perspectiveTransform(corners, projectedCorners, homographyMatrix)
+
+        // extract projected corner points
+        val projectedPoints = projectedCorners.toArray()
+
+        // determine the bounding box of the projected corners
+        val minX = projectedPoints.minOf { it.x }.toInt()
+        val maxX = projectedPoints.maxOf { it.x }.toInt()
+        val minY = projectedPoints.minOf { it.y }.toInt()
+        val maxY = projectedPoints.maxOf { it.y }.toInt()
+
+        // use the maximum y-coordinate to set the height
+        val targetHeight = maxY
+
+        val resultImageMat = Mat(targetHeight, imageMat1.cols(), imageMat1.type())
+        Log.d("resultImageMat", "${resultImageMat.size()}")
 
         // warp image2 to align with image1 using the homography matrix
         warpPerspective(
@@ -81,12 +110,10 @@ class StitchScreenViewModel @Inject constructor(
             Size(imageMat1.cols().toDouble(), targetHeight.toDouble())
         )
 
-        val rowsToExclude = 100
-        val rowsToCopy = imageMat1.rows() - rowsToExclude
-
-        // place image1 onto the warped result to combine them, excluding the bottom few rows
-        imageMat1.submat(0, rowsToCopy, 0, imageMat1.cols())
-            .copyTo(resultImageMat.submat(0, rowsToCopy, 0, imageMat1.cols()))
+        // place image1 onto the warped result
+        imageMat1
+            .submat(0, imageMat1.rows(), 0, imageMat1.cols())
+            .copyTo(resultImageMat.submat(0, imageMat1.rows(), 0, imageMat1.cols()))
 
         return resultImageMat
     }
@@ -157,7 +184,7 @@ class StitchScreenViewModel @Inject constructor(
         val keypoints2 = MatOfKeyPoint()
         val descriptors2 = Mat()
 
-        // TODO: feature matching only needs to be done on bottom half / top half of images
+        // TODO: feature matching only needs to be done on bottom half & top half of images
         siftDetector.detectAndCompute(imageMat1, Mat(), keypoints1, descriptors1)
         siftDetector.detectAndCompute(imageMat2, Mat(), keypoints2, descriptors2)
         Log.d("StitchScreenViewModel", "Detected ${keypoints1.size()} keypoints in image 1.")
@@ -169,7 +196,7 @@ class StitchScreenViewModel @Inject constructor(
         flannMatcher.knnMatch(descriptors1, descriptors2, knnMatches, 2)
 
         // filter matches using the Lowe's ratio test
-        val ratioThresh = 0.6f
+        val ratioThresh = 0.7f
         val goodMatchesList = mutableListOf<DMatch>()
         for (match in knnMatches) {
             if (match.rows() > 1) {

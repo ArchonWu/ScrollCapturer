@@ -40,7 +40,6 @@ fun ResultImage(resultImageBitmap: ImageBitmap) {
         modifier = Modifier
 //            .fillMaxSize()
             .verticalScroll(rememberScrollState())
-//            .border(2.dp, color = Color.Green)
     )
     {
         Image(
@@ -50,8 +49,8 @@ fun ResultImage(resultImageBitmap: ImageBitmap) {
 //                .fillMaxSize()
 //                .fillMaxHeight()
                 .fillMaxWidth()
-//                .align(Alignment.Center)
-                .border(width = 2.dp, color = Color.Yellow)
+                .align(Alignment.Center)
+//                .border(width = 2.dp, color = Color.Blue)
         )
     }
 }
