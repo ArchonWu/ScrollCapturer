@@ -3,7 +3,6 @@ package com.example.scrollcapturer.stitchscreen
 import android.content.ContentResolver
 import android.graphics.Bitmap
 import android.net.Uri
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -30,10 +29,6 @@ import org.opencv.imgproc.Imgproc.warpPerspective
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.opencv.core.KeyPoint
-import org.opencv.core.MatOfPoint
-import org.opencv.core.Scalar
-import org.opencv.imgproc.Imgproc
 import javax.inject.Inject
 
 // handles the feature matching & stitching
@@ -206,8 +201,6 @@ class StitchScreenViewModel @Inject constructor(
             )
         siftDetector.detectAndCompute(roiImageMat1, Mat(), keypoints1, descriptors1)
         siftDetector.detectAndCompute(roiImageMat2, Mat(), keypoints2, descriptors2)
-        Log.d("StitchScreenViewModel", "Detected ${keypoints1.size()} keypoints in image 1.")
-        Log.d("StitchScreenViewModel", "Detected ${keypoints2.size()} keypoints in image 2.")
 
         // adjust coordinates of keypoints1 due to performing SIFT on only bottom part of image1
         val offsetY = imageMat1.rows() - screenHeight / 2
@@ -236,7 +229,6 @@ class StitchScreenViewModel @Inject constructor(
         }
         val goodMatches = MatOfDMatch()
         goodMatches.fromList(goodMatchesList)
-        Log.d("SIFT", "${goodMatches.size()}")
 
         return SiftMatchResult(goodMatches, adjustedMatOfKeypoints1, keypoints2)
     }
