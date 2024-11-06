@@ -25,6 +25,7 @@ import org.opencv.android.OpenCVLoader
 class MainActivity : ComponentActivity() {
     private val screenshotListSharedViewModel: ScreenshotListSharedViewModel by viewModels()
     private val stitchScreenViewModel: StitchScreenViewModel by viewModels()
+    private val resultScreenViewModel: ResultScreenViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,7 +57,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable("result_screen") {
-                            ResultScreen(navController, stitchScreenViewModel)
+                            ResultScreen(navController, stitchScreenViewModel, resultScreenViewModel)
                         }
                     }
                 }
