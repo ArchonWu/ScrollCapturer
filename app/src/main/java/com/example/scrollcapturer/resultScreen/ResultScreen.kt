@@ -33,6 +33,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.scrollcapturer.stitchscreen.StitchScreenViewModel
 
@@ -40,7 +41,7 @@ import com.example.scrollcapturer.stitchscreen.StitchScreenViewModel
 fun ResultScreen(
     navController: NavController,
     stitchScreenViewModel: StitchScreenViewModel,
-    resultScreenViewModel: ResultScreenViewModel
+    resultScreenViewModel: ResultScreenViewModel = hiltViewModel()
 ) {
     val resultImageBitmap = stitchScreenViewModel.resultImageBitmap
     Text("welcome to result screen")

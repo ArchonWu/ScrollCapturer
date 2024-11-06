@@ -33,12 +33,15 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 
 @Composable
-fun ScreenshotListScreen(navController: NavController, viewModel: ScreenshotListSharedViewModel) {
+fun ScreenshotListScreen(
+    navController: NavController,
+    sharedViewModel: ScreenshotListSharedViewModel
+) {
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents(),
         onResult = { uris: List<Uri> ->
-            viewModel.addImageUris(uris)
+            sharedViewModel.addImageUris(uris)
             uris.forEach { uri ->
                 Log.d("ScreenshotListScreen_uri", "Image added: $uri")
             }
@@ -50,7 +53,7 @@ fun ScreenshotListScreen(navController: NavController, viewModel: ScreenshotList
         modifier = Modifier
             .fillMaxSize()
     ) {
-        ScreenshotGrid(imageUriList = viewModel.selectedImagesUri)
+        ScreenshotGrid(imageUriList = sharedViewModel.selectedImagesUri)
         ExpandingMenu(navController, imagePickerLauncher)
     }
 }
@@ -110,7 +113,10 @@ fun StartStitchingButton(navController: NavController) {
 }
 
 @Composable
-fun ExpandingMenu(navController: NavController, imagePickerLauncher: ManagedActivityResultLauncher<String, List<Uri>>) {
+fun ExpandingMenu(
+    navController: NavController,
+    imagePickerLauncher: ManagedActivityResultLauncher<String, List<Uri>>
+) {
 
     var expanded by remember {
         mutableStateOf(false)
