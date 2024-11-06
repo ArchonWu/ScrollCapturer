@@ -30,6 +30,7 @@ import org.opencv.imgproc.Imgproc.warpPerspective
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.opencv.core.KeyPoint
 import org.opencv.core.MatOfPoint
 import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
@@ -186,11 +187,36 @@ class StitchScreenViewModel @Inject constructor(
         val keypoints2 = MatOfKeyPoint()
         val descriptors2 = Mat()
 
-        // TODO: feature matching only needs to be done on bottom half & top half of images
-        siftDetector.detectAndCompute(imageMat1, Mat(), keypoints1, descriptors1)
-        siftDetector.detectAndCompute(imageMat2, Mat(), keypoints2, descriptors2)
+        // feature matching only needs to be done on the bottom & top part of images
+        // for image1: roi is 1/2 screenHeight of the bottom of the image
+        // for image2: roi is 1/2 screenHeight of the top of the image
+        val roiImageMat1 =
+            imageMat1.submat(
+                imageMat1.rows() - screenHeight / 2,
+                imageMat1.rows(),
+                0,
+                imageMat1.cols()
+            )
+        val roiImageMat2 =
+            imageMat2.submat(
+                0,
+                screenHeight / 2,
+                0,
+                imageMat2.cols()
+            )
+        siftDetector.detectAndCompute(roiImageMat1, Mat(), keypoints1, descriptors1)
+        siftDetector.detectAndCompute(roiImageMat2, Mat(), keypoints2, descriptors2)
         Log.d("StitchScreenViewModel", "Detected ${keypoints1.size()} keypoints in image 1.")
         Log.d("StitchScreenViewModel", "Detected ${keypoints2.size()} keypoints in image 2.")
+
+        // adjust coordinates of keypoints1 due to performing SIFT on only bottom part of image1
+        val offsetY = imageMat1.rows() - screenHeight / 2
+        val adjustedKeypoints1 = keypoints1.toArray().map { keypoint ->
+            keypoint.pt.y += offsetY
+            keypoint
+        }
+        val adjustedMatOfKeypoints1 = MatOfKeyPoint()
+        adjustedMatOfKeypoints1.fromList(adjustedKeypoints1)
 
         // use FLANN-based matcher for matching descriptors
         val flannMatcher = FlannBasedMatcher.create()
@@ -212,6 +238,6 @@ class StitchScreenViewModel @Inject constructor(
         goodMatches.fromList(goodMatchesList)
         Log.d("SIFT", "${goodMatches.size()}")
 
-        return SiftMatchResult(goodMatches, keypoints1, keypoints2)
+        return SiftMatchResult(goodMatches, adjustedMatOfKeypoints1, keypoints2)
     }
 }
