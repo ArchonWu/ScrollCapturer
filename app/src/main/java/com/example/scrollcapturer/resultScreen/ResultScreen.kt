@@ -78,7 +78,6 @@ fun SaveButton(viewModel: ResultScreenViewModel, resultImageBitmap: ImageBitmap)
     var customFileName by remember {
         mutableStateOf("stitch_image_0")
     }
-    val context = LocalContext.current
 
     Button(onClick = {
         showDialog = true
