@@ -3,10 +3,7 @@ package com.example.scrollcapturer.stitchscreen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,10 +14,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.scrollcapturer.screenshotListScreen.ScreenshotListSharedViewModel
@@ -29,7 +26,7 @@ import com.example.scrollcapturer.screenshotListScreen.ScreenshotListSharedViewM
 fun StitchScreen(
     navController: NavController,
     sharedViewModel: ScreenshotListSharedViewModel,
-    viewModel: StitchScreenViewModel
+    viewModel: StitchScreenViewModel = hiltViewModel()
 ) {
 
     val context = LocalContext.current
@@ -44,7 +41,6 @@ fun StitchScreen(
     val imageUriList = sharedViewModel.selectedImagesUri
     val visualizeImageList = viewModel.visualizeImageList
     val flaggedImageList = viewModel.flaggedImageList
-
 
     Box(
         modifier = Modifier

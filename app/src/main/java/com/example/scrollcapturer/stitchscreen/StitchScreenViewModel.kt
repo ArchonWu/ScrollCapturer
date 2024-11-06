@@ -21,13 +21,9 @@ import org.opencv.features2d.SIFT
 import com.example.scrollcapturer.utils.ImageUtils
 import org.opencv.calib3d.Calib3d
 import org.opencv.calib3d.Calib3d.RANSAC
-import org.opencv.core.Core
-import org.opencv.core.CvType
 import org.opencv.core.MatOfPoint2f
 import org.opencv.core.Point
-import org.opencv.core.Scalar
 import org.opencv.core.Size
-import org.opencv.imgproc.Imgproc
 import org.opencv.imgproc.Imgproc.warpPerspective
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
