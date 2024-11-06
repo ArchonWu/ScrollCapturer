@@ -20,7 +20,7 @@ class ResultScreenViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
-    fun saveImageToStorage(imageBitmap: ImageBitmap): String {
+    fun saveImageToStorage(imageBitmap: ImageBitmap, fileName: String): String {
         // need to save as Bitmap format
         val bitmap: Bitmap = imageBitmap.asAndroidBitmap()
 
@@ -31,7 +31,7 @@ class ResultScreenViewModel @Inject constructor(
             downloadsDir.mkdirs()
         }
 
-        val imageFile = File(downloadsDir, "stitched_image.png")
+        val imageFile = File(downloadsDir, "$fileName.png")
 
         var fos: FileOutputStream? = null
         try {
