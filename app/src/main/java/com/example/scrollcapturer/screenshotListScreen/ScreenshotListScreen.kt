@@ -94,6 +94,8 @@ fun AddPictureButton(imagePickerLauncher: ManagedActivityResultLauncher<String, 
         text = "ADD",
         onClick = { imagePickerLauncher.launch("image/*") }
     )
+
+    // TODO: select from gallery or Auto mode
 }
 
 @Composable
