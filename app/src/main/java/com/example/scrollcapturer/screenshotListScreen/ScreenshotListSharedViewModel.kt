@@ -1,6 +1,10 @@
 package com.example.scrollcapturer.screenshotListScreen
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.net.Uri
+import android.util.Log
+import android.view.View
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -26,5 +30,4 @@ class ScreenshotListSharedViewModel @Inject constructor() : ViewModel() {
             selectedImagesUri = selectedImagesUri - deleteUri
         }
     }
-
 }

@@ -1,5 +1,6 @@
 package com.example.scrollcapturer.screenshotListScreen
 
+import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
@@ -19,11 +20,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.scrollcapturer.foregroundservices.AutoScrollCaptureService
 import com.example.scrollcapturer.ui.components.MenuBar
 import com.example.scrollcapturer.ui.components.StyledButton
+import dagger.hilt.android.qualifiers.ApplicationContext
 
 @Composable
 fun ScreenshotListScreen(
@@ -56,7 +61,7 @@ fun ScreenshotListScreen(
     ) {
         MenuBar(
             buttons = listOf(
-                { AddPictureButton(imagePickerLauncher) },
+                { AddPictureButton(imagePickerLauncher, sharedViewModel) },
                 { RemovePictureButton() },
                 { ResetPictureButton() },
                 { NextButton(navController) },
@@ -93,33 +98,47 @@ fun ScreenshotSlot(uri: Uri) {
 }
 
 @Composable
-fun AddPictureButton(imagePickerLauncher: ManagedActivityResultLauncher<String, List<Uri>>) {
+fun AddPictureButton(
+    imagePickerLauncher: ManagedActivityResultLauncher<String, List<Uri>>,
+    sharedViewModel: ScreenshotListSharedViewModel
+) {
 
     var isExpanded by remember {
         mutableStateOf(false)
     }
 
+    val context = LocalContext.current
+
     StyledButton(
         text = "ADD",
-        onClick = { isExpanded = true }
+        onClick = {
+//            isExpanded = true
+
+            // TODO: AUTO MODE
+            Intent(context, AutoScrollCaptureService::class.java).also { intent ->
+                intent.action = AutoScrollCaptureService.Actions.START_AUTO_SCROLL.toString()
+                context.startService(intent)
+            }
+        }
+
     )
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        if (isExpanded) {
-            StyledButton(
-                text = "GALLERY",
-                onClick = { imagePickerLauncher.launch("image/*") }
-            )
-
-            StyledButton(
-                text = "AUTO",
-                onClick = {}
-            )
-        }
-    }
+//    Column(
+//        horizontalAlignment = Alignment.CenterHorizontally,
+//        verticalArrangement = Arrangement.Center
+//    ) {
+//        if (isExpanded) {
+//            StyledButton(
+//                text = "GALLERY",
+//                onClick = { imagePickerLauncher.launch("image/*") }
+//            )
+//
+//            StyledButton(
+//                text = "AUTO",
+//                onClick = {}
+//            )
+//        }
+//    }
 }
 
 @Composable
