@@ -6,31 +6,20 @@ import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.scrollcapturer.ui.components.MenuBar
+import com.example.scrollcapturer.ui.components.StyledButton
 
 @Composable
 fun ScreenshotListScreen(
@@ -54,7 +43,21 @@ fun ScreenshotListScreen(
             .fillMaxSize()
     ) {
         ScreenshotGrid(imageUriList = sharedViewModel.selectedImagesUri)
-        ExpandingMenu(navController, imagePickerLauncher)
+    }
+
+    // Bottom MenuBar
+    Box(
+        contentAlignment = Alignment.BottomCenter,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        MenuBar(
+            buttons = listOf(
+                { AddPictureButton(imagePickerLauncher) },
+                { RemovePictureButton() },
+                { ResetPictureButton() },
+                { NextButton(navController) },
+            )
+        )
     }
 }
 
@@ -64,8 +67,7 @@ fun ScreenshotGrid(imageUriList: List<Uri>) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(5),   // 5 images per row
         modifier = Modifier
-            .fillMaxSize()
-            .border(width = 2.dp, color = Color.Red),
+            .fillMaxSize(),
         content = {
             items(imageUriList) { uri ->
                 ScreenshotSlot(uri = uri)
@@ -82,60 +84,38 @@ fun ScreenshotSlot(uri: Uri) {
         contentDescription = "screenshot",
         contentScale = ContentScale.Crop,   // crop image to this size
         modifier = Modifier
-            .border(width = 2.dp, color = Color.Green)
-            .size(100.dp)
+            .size(120.dp)
     )
 }
 
 @Composable
 fun AddPictureButton(imagePickerLauncher: ManagedActivityResultLauncher<String, List<Uri>>) {
-    Button(onClick = {
-        imagePickerLauncher.launch("image/*")
-    }) {
-        Text("+")
-    }
+    StyledButton(
+        text = "ADD",
+        onClick = { imagePickerLauncher.launch("image/*") }
+    )
 }
 
 @Composable
 fun RemovePictureButton() {
-    Button(onClick = {}) {
-        Text("-")
-    }
+    StyledButton(
+        text = "REMOVE",
+        onClick = {}
+    )
 }
 
 @Composable
-fun StartStitchingButton(navController: NavController) {
-    Button(onClick = {
-        navController.navigate("stitch_screen")
-    }) {
-        Text("STITCH")
-    }
+fun ResetPictureButton() {
+    StyledButton(
+        text = "RESET",
+        onClick = {}
+    )
 }
 
 @Composable
-fun ExpandingMenu(
-    navController: NavController,
-    imagePickerLauncher: ManagedActivityResultLauncher<String, List<Uri>>
-) {
-
-    var expanded by remember {
-        mutableStateOf(false)
-    }
-
-    // the "3 dots" button
-    IconButton(onClick = { expanded = !expanded }) {
-        Icon(
-            imageVector = Icons.Default.MoreVert,
-            contentDescription = "More options",
-        )
-    }
-
-    // Display vertical column with 3 buttons
-    if (expanded) {
-        Column {
-            AddPictureButton(imagePickerLauncher)
-            RemovePictureButton()
-            StartStitchingButton(navController)
-        }
-    }
+fun NextButton(navController: NavController) {
+    StyledButton(
+        text = "NEXT",
+        onClick = { navController.navigate("stitch_screen") }
+    )
 }

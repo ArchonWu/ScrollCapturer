@@ -1,13 +1,17 @@
 package com.example.scrollcapturer.stitchscreen
 
+import android.content.ContentResolver
+import android.net.Uri
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,10 +21,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.scrollcapturer.screenshotListScreen.ScreenshotListSharedViewModel
+import com.example.scrollcapturer.ui.components.MenuBar
+import com.example.scrollcapturer.ui.components.StyledButton
 
 @Composable
 fun StitchScreen(
@@ -32,20 +37,12 @@ fun StitchScreen(
     val context = LocalContext.current
     val contentResolver = context.contentResolver
 
-    Text(
-        "STITCH ORDER PREVIEW",
-        fontSize = 18.sp,
-        modifier = Modifier.shadow(2.dp)
-    )
-
     val imageUriList = sharedViewModel.selectedImagesUri
     val visualizeImageList = viewModel.visualizeImageList
     val flaggedImageList = viewModel.flaggedImageList
 
     Box(
-        modifier = Modifier
-            .fillMaxSize(),
-        contentAlignment = Alignment.Center
+        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
     ) {
         if (imageUriList.isEmpty()) {
             Text(text = "NO IMAGES WERE ADDED")
@@ -57,15 +54,59 @@ fun StitchScreen(
                         contentDescription = "screenshot",
                         modifier = Modifier
                             .size(400.dp)
-                            .border(width = 2.dp, color = Color.Red)
                     )
                 }
             }
         }
     }
 
-    // TODO: should be moved to a new screen
-    // visualize goodMatches
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .background(Color.DarkGray),
+        contentAlignment = Alignment.BottomEnd
+    ) {
+
+    }
+
+    // Bottom MenuBar
+    Box(
+        contentAlignment = Alignment.BottomCenter,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        MenuBar(
+            buttons = listOf(
+                { BackButton(navController) },
+                { StartStitchingButton(navController, viewModel, contentResolver, imageUriList) })
+        )
+    }
+}
+
+@Composable
+fun BackButton(navController: NavController) {
+    StyledButton(
+        text = "BACK",
+        onClick = { navController.navigate("screenshot_list_screen") }
+    )
+}
+
+@Composable
+fun StartStitchingButton(
+    navController: NavController,
+    viewModel: StitchScreenViewModel,
+    contentResolver: ContentResolver,
+    imageUriList: List<Uri>
+) {
+    StyledButton(text = "START STITCHING", onClick = {
+        viewModel.stitchAllImages(imageUriList, contentResolver)
+        navController.navigate("result_screen")
+    })
+}
+
+
+// TODO: should be moved to a new screen
+// visualize goodMatches
 //        Box(
 //            modifier = Modifier
 //                .fillMaxSize()
@@ -119,15 +160,3 @@ fun StitchScreen(
 //        }
 //    }
 
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.BottomEnd
-    ) {
-        Button(onClick = {
-            viewModel.stitchAllImages(imageUriList, contentResolver)
-            navController.navigate("result_screen")
-        }) {
-            Text("Start Stitching")
-        }
-    }
-}

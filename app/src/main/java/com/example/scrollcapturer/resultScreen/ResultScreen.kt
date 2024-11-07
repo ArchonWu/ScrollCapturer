@@ -1,18 +1,14 @@
 package com.example.scrollcapturer.resultScreen
 
-import android.app.AlertDialog
-import android.app.Dialog
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -25,19 +21,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.scrollcapturer.stitchscreen.StitchScreenViewModel
-import kotlinx.coroutines.launch
+import com.example.scrollcapturer.ui.components.MenuBar
+import com.example.scrollcapturer.ui.components.StyledButton
 
 @Composable
 fun ResultScreen(
@@ -46,9 +37,20 @@ fun ResultScreen(
     resultScreenViewModel: ResultScreenViewModel = hiltViewModel()
 ) {
     val resultImageBitmap = stitchScreenViewModel.resultImageBitmap
-    Text("welcome to result screen")
+
     ResultImage(resultImageBitmap)
-    SaveButton(resultScreenViewModel, resultImageBitmap)
+
+    // Bottom MenuBar
+    Box(
+        contentAlignment = Alignment.BottomCenter,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        MenuBar(
+            buttons = listOf(
+                { RestartButton(navController) },
+                { SaveButton(resultScreenViewModel, resultImageBitmap) })
+        )
+    }
 }
 
 @Composable
@@ -70,8 +72,15 @@ fun ResultImage(resultImageBitmap: ImageBitmap) {
 }
 
 @Composable
-fun SaveButton(viewModel: ResultScreenViewModel, resultImageBitmap: ImageBitmap) {
+fun RestartButton(navController: NavController) {
+    StyledButton(
+        text = "RESTART",
+        onClick = { navController.navigate("screenshot_list_screen") }
+    )
+}
 
+@Composable
+fun SaveButton(resultScreenViewModel: ResultScreenViewModel, resultImageBitmap: ImageBitmap) {
     var showDialog by remember {
         mutableStateOf(false)
     }
@@ -79,12 +88,12 @@ fun SaveButton(viewModel: ResultScreenViewModel, resultImageBitmap: ImageBitmap)
         mutableStateOf("stitch_image_0")
     }
 
-    Button(onClick = {
-        showDialog = true
-    }) {
-        Text("SAVE")
-    }
+    StyledButton(
+        text = "SAVE",
+        onClick = { showDialog = true }
+    )
 
+    // AlertDialog for saving image
     if (showDialog) {
         DialogTextField(
             onDismiss = { showDialog = false },
@@ -92,7 +101,12 @@ fun SaveButton(viewModel: ResultScreenViewModel, resultImageBitmap: ImageBitmap)
             onValueChange = { userInput ->
                 customFileName = userInput
             },
-            onSave = { viewModel.saveImageAndShowToast(resultImageBitmap, customFileName) }
+            onSave = {
+                resultScreenViewModel.saveImageAndShowToast(
+                    resultImageBitmap,
+                    customFileName
+                )
+            }
         )
     }
 }
@@ -106,11 +120,12 @@ fun DialogTextField(
 ) {
     val focusManager = LocalFocusManager.current
     AlertDialog(
+        shape = RoundedCornerShape(0.dp),
         onDismissRequest = {
             focusManager.clearFocus()
             onDismiss()
         },
-        title = { Text("Enter file name") },
+        title = { Text("Enter file name:") },
         text = {
             Column {
                 TextField(
@@ -127,23 +142,19 @@ fun DialogTextField(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-
                 // DismissButton
-                Button(onClick = {
-                    onDismiss()
-                }) {
-                    Text("Cancel")
-                }
+                StyledButton(
+                    text = "CANCEL",
+                    onClick = { onDismiss() }
+                )
 
                 // ConfirmButton
-                Button(
+                StyledButton(
+                    text = "SAVE",
                     onClick = {
                         onSave()
                         onDismiss()
-                    }
-                ) {
-                    Text("Save")
-                }
+                    })
             }
         }
     )
