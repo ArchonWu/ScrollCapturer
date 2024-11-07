@@ -12,6 +12,10 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -90,12 +94,32 @@ fun ScreenshotSlot(uri: Uri) {
 
 @Composable
 fun AddPictureButton(imagePickerLauncher: ManagedActivityResultLauncher<String, List<Uri>>) {
+
+    var isExpanded by remember {
+        mutableStateOf(false)
+    }
+
     StyledButton(
         text = "ADD",
-        onClick = { imagePickerLauncher.launch("image/*") }
+        onClick = { isExpanded = true }
     )
 
-    // TODO: select from gallery or Auto mode
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        if (isExpanded) {
+            StyledButton(
+                text = "GALLERY",
+                onClick = { imagePickerLauncher.launch("image/*") }
+            )
+
+            StyledButton(
+                text = "AUTO",
+                onClick = {}
+            )
+        }
+    }
 }
 
 @Composable

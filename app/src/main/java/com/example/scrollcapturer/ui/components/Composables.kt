@@ -1,10 +1,12 @@
 package com.example.scrollcapturer.ui.components
 
-import android.widget.Button
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -24,10 +26,15 @@ fun StyledButton(text: String, onClick: () -> Unit) {
             containerColor = Color.LightGray,
             contentColor = Color.Black
         ),
-        modifier = Modifier,
+        contentPadding = PaddingValues(0.dp),
+        modifier = Modifier
+            .fillMaxWidth(),
         onClick = onClick
     ) {
-        Text(text)
+        Text(
+            text,
+            maxLines = 1
+        )
     }
 }
 
@@ -37,13 +44,20 @@ fun MenuBar(buttons: List<@Composable () -> Unit>) {
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .background(Color.DarkGray),
-        verticalAlignment = Alignment.Bottom,
-        horizontalArrangement = Arrangement.SpaceEvenly
+            .background(Color.DarkGray)
+            .padding(0.dp)
     ) {
-        // populate the row with the buttons
         for (button in buttons) {
-            button()
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)             // each box has the same weight, so equal width for each button
+                    .wrapContentHeight()
+                    .border(1.dp, color = Color.Gray),
+                contentAlignment = Alignment.Center
+            ) {
+                button()
+            }
         }
     }
 }
