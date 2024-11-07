@@ -22,13 +22,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.scrollcapturer.foregroundservices.AutoScrollCaptureService
 import com.example.scrollcapturer.ui.components.MenuBar
 import com.example.scrollcapturer.ui.components.StyledButton
-import dagger.hilt.android.qualifiers.ApplicationContext
 
 @Composable
 fun ScreenshotListScreen(
@@ -114,9 +112,9 @@ fun AddPictureButton(
         onClick = {
 //            isExpanded = true
 
-            // TODO: AUTO MODE
+            // Testing Auto Capture Mode
             Intent(context, AutoScrollCaptureService::class.java).also { intent ->
-                intent.action = AutoScrollCaptureService.Actions.START_AUTO_SCROLL.toString()
+                intent.action = AutoScrollCaptureService.Actions.START.toString()
                 context.startService(intent)
             }
         }

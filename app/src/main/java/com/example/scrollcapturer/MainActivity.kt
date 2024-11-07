@@ -9,7 +9,10 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.core.app.ActivityCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
@@ -57,7 +60,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             ScrollCapturerTheme {
                 Column(
-//                    modifier = Modifier.background(Color.LightGray)
+                    modifier = Modifier.background(Color.LightGray)
                 )
                 {
                     val navController = rememberNavController()
