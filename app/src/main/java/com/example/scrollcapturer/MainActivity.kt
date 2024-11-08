@@ -3,6 +3,8 @@ package com.example.scrollcapturer
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.media.projection.MediaProjection
+import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -56,6 +58,7 @@ class MainActivity : ComponentActivity() {
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
 
+        // OpenCV for feature matching
         if (OpenCVLoader.initLocal()) {
             Log.i("OpenCV", "OpenCV successfully loaded.")
         } else {

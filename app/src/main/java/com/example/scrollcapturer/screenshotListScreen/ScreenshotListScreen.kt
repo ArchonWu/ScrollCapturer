@@ -137,11 +137,13 @@ fun AddPictureButton(
 fun RemovePictureButton() {
     val context = LocalContext.current
     StyledButton(
-        text = "REMOVE",
+        text = "AUTO",
         onClick = {
             // Testing Auto Capture Mode
+
             Intent(context, AutoScrollCaptureService::class.java).also { intent ->
                 intent.action = AutoScrollCaptureService.Actions.START.toString()
+                // TODO: initialize mediaProjectionService, and put as parcelable in intent for accessibility service to use?
                 context.startService(intent)
             }
         }

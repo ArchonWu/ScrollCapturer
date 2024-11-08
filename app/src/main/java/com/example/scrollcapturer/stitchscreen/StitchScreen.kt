@@ -98,7 +98,7 @@ fun StartStitchingButton(
     contentResolver: ContentResolver,
     imageUriList: List<Uri>
 ) {
-    StyledButton(text = "START STITCHING", onClick = {
+    StyledButton(text = "COMBINE", onClick = {
         viewModel.stitchAllImages(imageUriList, contentResolver)
         navController.navigate("result_screen")
     })

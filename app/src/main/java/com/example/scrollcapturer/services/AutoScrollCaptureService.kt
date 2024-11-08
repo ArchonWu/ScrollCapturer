@@ -2,16 +2,19 @@ package com.example.scrollcapturer.services
 
 import android.app.PendingIntent
 import android.app.Service
-import android.app.StatusBarManager
-import android.content.Context
 import android.content.Intent
-import android.content.Intent.ACTION_CLOSE_SYSTEM_DIALOGS
 import android.os.IBinder
+import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.scrollcapturer.R
 
 class AutoScrollCaptureService : Service() {
+
+    private var screenHeight: Int = 0
+    private var screenWidth: Int = 0
+    private var isScrolling = false
+    private val handler = android.os.Handler(Looper.getMainLooper())
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -23,6 +26,7 @@ class AutoScrollCaptureService : Service() {
             Actions.START.toString() -> start()
             Actions.STOP.toString() -> stopSelf()
             Actions.START_AUTO_CAPTURE.toString() -> startAutoScrollAndCapture()
+            "com.example.scrollcapturer.STOP_CONTINUOUS_SCROLL" -> isScrolling = false
         }
         return START_STICKY
     }
@@ -78,12 +82,30 @@ class AutoScrollCaptureService : Service() {
     }
 
     private fun startAutoScrollAndCapture() {
+        Log.d("S_startAutoScrollAndCapture()", "")
 
-        // send an intent to AccessibilityService to start auto scroll
-        val intent = Intent(this, AutoScrollAccessibilityService::class.java)
-        intent.action = "com.example.scrollcapturer.START_AUTO_SCROLL"
-        startService(intent)
-        Log.d("ASC_Service", intent.toString())
+        // intent for accessibility service to collapse status bar
+        val collapseStatusBarIntent = Intent(this, AutoScrollAccessibilityService::class.java)
+        collapseStatusBarIntent.action = "com.example.scrollcapturer.COLLAPSE_STATUS_BAR"
+        startService(collapseStatusBarIntent)
+
+        handler.postDelayed({
+            isScrolling = true
+            continuousScrollDownPage()
+        }, 1750)
+    }
+
+    private fun continuousScrollDownPage() {
+        if (!isScrolling) return
+
+        // intent for accessibility service to scroll down by half page
+        val scrollDownByHalfPageIntent = Intent(this, AutoScrollAccessibilityService::class.java)
+        scrollDownByHalfPageIntent.action = "com.example.scrollcapturer.SCROLL_DOWN_HALF_PAGE"
+        startService(scrollDownByHalfPageIntent)
+
+        handler.postDelayed({
+            continuousScrollDownPage()
+        }, 1750)
     }
 
     enum class Actions {

@@ -11,3 +11,9 @@ generate_cxx_metadata completed in 64ms
 generate_cxx_metadata completed in 98ms
 >>>>>>> dagger-hilt
 
+# C/C++ build system timings
+generate_cxx_metadata
+  create-invalidation-state 23ms
+  [gap of 16ms]
+generate_cxx_metadata completed in 45ms
+

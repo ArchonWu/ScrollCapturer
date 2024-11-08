@@ -4,7 +4,6 @@ import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.GestureDescription
 import android.graphics.Path
 import android.content.Intent
-import android.os.Looper
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 
@@ -12,22 +11,13 @@ class AutoScrollAccessibilityService : AccessibilityService() {
 
     private var screenHeight: Int = 0
     private var screenWidth: Int = 0
-    private var isScrolling = false
-    private val handler = android.os.Handler(Looper.getMainLooper())
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
-        Log.d("AS_Service", "onStartCommand called with isScrolling = $isScrolling")
-
-        if (intent != null && intent.action == "com.example.scrollcapturer.START_AUTO_SCROLL") {
-
+        if (intent != null && intent.action == "com.example.scrollcapturer.COLLAPSE_STATUS_BAR") {
             collapseStatusBar()
-
-            // wait 1 second
-            handler.postDelayed({
-                isScrolling = true
-                performAutoScroll()
-            }, 1000)
+        } else if (intent != null && intent.action == "com.example.scrollcapturer.SCROLL_DOWN_HALF_PAGE") {
+            scrollDownByHalfPage()
         }
 
         return START_STICKY
@@ -35,7 +25,8 @@ class AutoScrollAccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
-        Log.d("AS_AS", "Accessibility Service connected")
+
+        Log.d("AS", "Accessibility Service connected")
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
@@ -47,17 +38,17 @@ class AutoScrollAccessibilityService : AccessibilityService() {
             AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> {}
 
             AccessibilityEvent.TYPE_VIEW_SCROLLED -> {
-                Log.d("AS_AS", "View scrolled $event")
+                Log.d("AS", "View scrolled $event")
             }
 
             AccessibilityEvent.TYPE_VIEW_CLICKED -> {
                 stopAutoScroll()
             }
 
-            else -> Log.d(
-                "AS_AS",
-                "Unhandled event: ${event.eventType}, ${event.action}, ${event.text}, $event."
-            )
+            else -> {}
+//                Log.d(                "AS_AS",
+//                "Unhandled event: ${event.eventType}, ${event.action}, ${event.text}, $event."
+//            )
         }
     }
 
@@ -67,25 +58,21 @@ class AutoScrollAccessibilityService : AccessibilityService() {
         screenHeight = displayMetrics.heightPixels
         screenWidth = displayMetrics.widthPixels
 
-        Log.d("AS_AS", "screenHeight: $screenHeight, screenWidth: $screenWidth")
+        Log.d("AS", "screenHeight: $screenHeight, screenWidth: $screenWidth")
     }
 
     override fun onInterrupt() {
 
     }
 
-    private fun performAutoScroll() {
-        if (!isScrolling) return
-
-        scrollDownByHalfPage()
-
-        handler.postDelayed({
-            performAutoScroll()
-        }, 1750)
-    }
-
     private fun stopAutoScroll() {
-        isScrolling = false
+
+        // intent for AutoScrollCaptureService to stop continuous-scrolling
+        val stopContinuousScroll = Intent(this, AutoScrollCaptureService::class.java)
+        stopContinuousScroll.action = "com.example.scrollcapturer.STOP_CONTINUOUS_SCROLL"
+        startService(stopContinuousScroll)
+
+        Log.d("AS", "stopAutoScroll()")
     }
 
     // scroll down by half the page (half of screen height)
@@ -100,7 +87,7 @@ class AutoScrollAccessibilityService : AccessibilityService() {
         val gestureDescription = GestureDescription.Builder().addStroke(strokeDescription).build()
         dispatchGesture(gestureDescription, null, null)
 
-        Log.d("AS_AS", "scrollDownByHalfPage()")
+        Log.d("AS", "scrollDownByHalfPage()")
     }
 
     // assumes the status bar is opened,
@@ -116,7 +103,7 @@ class AutoScrollAccessibilityService : AccessibilityService() {
         val gestureDescription = GestureDescription.Builder().addStroke(strokeDescription).build()
         dispatchGesture(gestureDescription, null, null)
 
-        Log.d("AS_AS", "collapseStatusBar()")
+        Log.d("AS", "collapseStatusBar()")
     }
 
 }
