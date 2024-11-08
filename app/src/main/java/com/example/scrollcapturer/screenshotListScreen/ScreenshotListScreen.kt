@@ -24,7 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.scrollcapturer.foregroundservices.AutoScrollCaptureService
+import com.example.scrollcapturer.services.AutoScrollCaptureService
 import com.example.scrollcapturer.ui.components.MenuBar
 import com.example.scrollcapturer.ui.components.StyledButton
 
@@ -105,18 +105,12 @@ fun AddPictureButton(
         mutableStateOf(false)
     }
 
-    val context = LocalContext.current
-
     StyledButton(
         text = "ADD",
         onClick = {
 //            isExpanded = true
+            imagePickerLauncher.launch("image/*")
 
-            // Testing Auto Capture Mode
-            Intent(context, AutoScrollCaptureService::class.java).also { intent ->
-                intent.action = AutoScrollCaptureService.Actions.START.toString()
-                context.startService(intent)
-            }
         }
 
     )
@@ -141,9 +135,16 @@ fun AddPictureButton(
 
 @Composable
 fun RemovePictureButton() {
+    val context = LocalContext.current
     StyledButton(
         text = "REMOVE",
-        onClick = {}
+        onClick = {
+            // Testing Auto Capture Mode
+            Intent(context, AutoScrollCaptureService::class.java).also { intent ->
+                intent.action = AutoScrollCaptureService.Actions.START.toString()
+                context.startService(intent)
+            }
+        }
     )
 }
 

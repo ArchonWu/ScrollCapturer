@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ScrollCapturer</string>
+    <string name="accessibility_service_description">Auto Scroll and Capture Service</string>
 </resources>

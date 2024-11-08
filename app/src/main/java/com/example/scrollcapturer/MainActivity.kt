@@ -11,6 +11,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.core.app.ActivityCompat
@@ -41,6 +46,7 @@ class MainActivity : ComponentActivity() {
             0
         )
 
+        // Foreground Service
         val channel = NotificationChannel(
             "AUTO_SCROLL_CAPTURE_CHANNEL",
             "AutoScrollCapture Notifications",
@@ -60,7 +66,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             ScrollCapturerTheme {
                 Column(
-                    modifier = Modifier.background(Color.LightGray)
+                    modifier = Modifier
+                        .background(Color.LightGray)
+                        .padding(WindowInsets.statusBars.asPaddingValues())
+                        .padding(WindowInsets.navigationBars.asPaddingValues())
                 )
                 {
                     val navController = rememberNavController()

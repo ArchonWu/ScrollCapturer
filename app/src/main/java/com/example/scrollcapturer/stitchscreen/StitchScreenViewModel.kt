@@ -105,7 +105,7 @@ class StitchScreenViewModel @Inject constructor(
             Size(imageMat1.cols().toDouble(), targetHeight.toDouble())
         )
 
-        val bottomIrrelevantRows = 80
+        val bottomIrrelevantRows = 150
         val rowsToCopy = imageMat1.rows() - bottomIrrelevantRows
 
         // place image1 onto the warped result
@@ -217,7 +217,7 @@ class StitchScreenViewModel @Inject constructor(
         flannMatcher.knnMatch(descriptors1, descriptors2, knnMatches, 2)
 
         // filter matches using the Lowe's ratio test
-        val ratioThresh = 0.7f
+        val ratioThresh = 0.5f
         val goodMatchesList = mutableListOf<DMatch>()
         for (match in knnMatches) {
             if (match.rows() > 1) {
