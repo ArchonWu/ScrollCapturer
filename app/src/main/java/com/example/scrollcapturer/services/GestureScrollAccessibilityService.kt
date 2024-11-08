@@ -7,7 +7,7 @@ import android.content.Intent
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 
-class AutoScrollAccessibilityService : AccessibilityService() {
+class GestureScrollAccessibilityService : AccessibilityService() {
 
     private var screenHeight: Int = 0
     private var screenWidth: Int = 0
@@ -68,7 +68,7 @@ class AutoScrollAccessibilityService : AccessibilityService() {
     private fun stopAutoScroll() {
 
         // intent for AutoScrollCaptureService to stop continuous-scrolling
-        val stopContinuousScroll = Intent(this, AutoScrollCaptureService::class.java)
+        val stopContinuousScroll = Intent(this, AutoCaptureService::class.java)
         stopContinuousScroll.action = "com.example.scrollcapturer.STOP_CONTINUOUS_SCROLL"
         startService(stopContinuousScroll)
 

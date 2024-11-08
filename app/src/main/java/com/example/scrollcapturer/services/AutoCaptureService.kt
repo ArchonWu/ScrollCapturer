@@ -9,10 +9,8 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.scrollcapturer.R
 
-class AutoScrollCaptureService : Service() {
+class AutoCaptureService : Service() {
 
-    private var screenHeight: Int = 0
-    private var screenWidth: Int = 0
     private var isScrolling = false
     private val handler = android.os.Handler(Looper.getMainLooper())
 
@@ -34,7 +32,7 @@ class AutoScrollCaptureService : Service() {
     private fun start() {
 
         // Start Auto Capture Button
-        val startAutoCaptureIntent = Intent(this, AutoScrollCaptureService::class.java)
+        val startAutoCaptureIntent = Intent(this, AutoCaptureService::class.java)
         startAutoCaptureIntent.apply {
             action = Actions.START_AUTO_CAPTURE.toString()
         }
@@ -46,7 +44,7 @@ class AutoScrollCaptureService : Service() {
         )
 
         // Stop Service Button
-        val stopAutoCaptureIntent = Intent(this, AutoScrollCaptureService::class.java)
+        val stopAutoCaptureIntent = Intent(this, AutoCaptureService::class.java)
         stopAutoCaptureIntent.apply {
             action = Actions.STOP.toString()
         }
@@ -58,7 +56,7 @@ class AutoScrollCaptureService : Service() {
         )
 
         // Test Button that doesn't do anything
-        val testIntent = Intent(this, AutoScrollCaptureService::class.java)
+        val testIntent = Intent(this, AutoCaptureService::class.java)
         testIntent.apply {
             action = Actions.TEST.toString()
         }
@@ -85,7 +83,7 @@ class AutoScrollCaptureService : Service() {
         Log.d("S_startAutoScrollAndCapture()", "")
 
         // intent for accessibility service to collapse status bar
-        val collapseStatusBarIntent = Intent(this, AutoScrollAccessibilityService::class.java)
+        val collapseStatusBarIntent = Intent(this, GestureScrollAccessibilityService::class.java)
         collapseStatusBarIntent.action = "com.example.scrollcapturer.COLLAPSE_STATUS_BAR"
         startService(collapseStatusBarIntent)
 
@@ -99,7 +97,7 @@ class AutoScrollCaptureService : Service() {
         if (!isScrolling) return
 
         // intent for accessibility service to scroll down by half page
-        val scrollDownByHalfPageIntent = Intent(this, AutoScrollAccessibilityService::class.java)
+        val scrollDownByHalfPageIntent = Intent(this, GestureScrollAccessibilityService::class.java)
         scrollDownByHalfPageIntent.action = "com.example.scrollcapturer.SCROLL_DOWN_HALF_PAGE"
         startService(scrollDownByHalfPageIntent)
 

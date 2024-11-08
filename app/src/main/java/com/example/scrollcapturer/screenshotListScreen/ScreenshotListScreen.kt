@@ -24,7 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.scrollcapturer.services.AutoScrollCaptureService
+import com.example.scrollcapturer.services.AutoCaptureService
 import com.example.scrollcapturer.ui.components.MenuBar
 import com.example.scrollcapturer.ui.components.StyledButton
 
@@ -141,8 +141,8 @@ fun RemovePictureButton() {
         onClick = {
             // Testing Auto Capture Mode
 
-            Intent(context, AutoScrollCaptureService::class.java).also { intent ->
-                intent.action = AutoScrollCaptureService.Actions.START.toString()
+            Intent(context, AutoCaptureService::class.java).also { intent ->
+                intent.action = AutoCaptureService.Actions.START.toString()
                 // TODO: initialize mediaProjectionService, and put as parcelable in intent for accessibility service to use?
                 context.startService(intent)
             }

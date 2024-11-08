@@ -32,12 +32,12 @@
             </intent-filter>
         </activity>
         <service
-            android:name=".services.AutoScrollCaptureService"
+            android:name=".services.AutoCaptureService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
         <service
-            android:name=".services.AutoScrollAccessibilityService"
+            android:name=".services.GestureScrollAccessibilityService"
             android:exported="true"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
             android:label="AutoScrollCapture">
