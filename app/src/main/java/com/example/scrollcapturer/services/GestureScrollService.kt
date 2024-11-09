@@ -7,17 +7,16 @@ import android.content.Intent
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 
-class GestureScrollAccessibilityService : AccessibilityService() {
+class GestureScrollService : AccessibilityService() {
 
     private var screenHeight: Int = 0
     private var screenWidth: Int = 0
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
-        if (intent != null && intent.action == "com.example.scrollcapturer.COLLAPSE_STATUS_BAR") {
-            collapseStatusBar()
-        } else if (intent != null && intent.action == "com.example.scrollcapturer.SCROLL_DOWN_HALF_PAGE") {
-            scrollDownByHalfPage()
+        when (intent?.action) {
+            Actions.COLLAPSE_STATUS_BAR.toString() -> collapseStatusBar()
+            Actions.SCROLL_DOWN_HALF_PAGE.toString() -> scrollDownByHalfPage()
         }
 
         return START_STICKY
@@ -26,7 +25,7 @@ class GestureScrollAccessibilityService : AccessibilityService() {
     override fun onServiceConnected() {
         super.onServiceConnected()
 
-        Log.d("AS", "Accessibility Service connected")
+        Log.d("AS_onServiceConnected()", "Accessibility Service connected")
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
@@ -38,7 +37,7 @@ class GestureScrollAccessibilityService : AccessibilityService() {
             AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> {}
 
             AccessibilityEvent.TYPE_VIEW_SCROLLED -> {
-                Log.d("AS", "View scrolled $event")
+//                Log.d("AS", "View scrolled $event")
             }
 
             AccessibilityEvent.TYPE_VIEW_CLICKED -> {
@@ -52,13 +51,14 @@ class GestureScrollAccessibilityService : AccessibilityService() {
         }
     }
 
+    // called when user enable use accessibility service in Accessibility Settings
     override fun onCreate() {
         super.onCreate()
         val displayMetrics = resources.displayMetrics
         screenHeight = displayMetrics.heightPixels
         screenWidth = displayMetrics.widthPixels
 
-        Log.d("AS", "screenHeight: $screenHeight, screenWidth: $screenWidth")
+        Log.d("AS_onCreate()", "screenHeight: $screenHeight, screenWidth: $screenWidth")
     }
 
     override fun onInterrupt() {
@@ -68,8 +68,8 @@ class GestureScrollAccessibilityService : AccessibilityService() {
     private fun stopAutoScroll() {
 
         // intent for AutoScrollCaptureService to stop continuous-scrolling
-        val stopContinuousScroll = Intent(this, AutoCaptureService::class.java)
-        stopContinuousScroll.action = "com.example.scrollcapturer.STOP_CONTINUOUS_SCROLL"
+        val stopContinuousScroll = Intent(this, ScreenCaptureService::class.java)
+        stopContinuousScroll.action = ScreenCaptureService.Actions.STOP_CONTINUOUS_SCROLL.toString()
         startService(stopContinuousScroll)
 
         Log.d("AS", "stopAutoScroll()")
@@ -106,4 +106,7 @@ class GestureScrollAccessibilityService : AccessibilityService() {
         Log.d("AS", "collapseStatusBar()")
     }
 
+    enum class Actions {
+        COLLAPSE_STATUS_BAR, SCROLL_DOWN_HALF_PAGE
+    }
 }

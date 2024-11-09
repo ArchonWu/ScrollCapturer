@@ -1,14 +1,17 @@
 package com.example.scrollcapturer.screenshotListScreen
 
+import android.app.Activity.RESULT_OK
+import android.content.Context
 import android.content.Intent
+import android.media.projection.MediaProjectionManager
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -24,7 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.scrollcapturer.services.AutoCaptureService
+import com.example.scrollcapturer.services.ScreenCaptureService
 import com.example.scrollcapturer.ui.components.MenuBar
 import com.example.scrollcapturer.ui.components.StyledButton
 
@@ -60,7 +63,7 @@ fun ScreenshotListScreen(
         MenuBar(
             buttons = listOf(
                 { AddPictureButton(imagePickerLauncher, sharedViewModel) },
-                { RemovePictureButton() },
+                { AutoModeButton() },
                 { ResetPictureButton() },
                 { NextButton(navController) },
             )
@@ -134,18 +137,31 @@ fun AddPictureButton(
 }
 
 @Composable
-fun RemovePictureButton() {
+fun AutoModeButton() {
     val context = LocalContext.current
+    val mediaProjectionManager = remember {
+        context.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+    }
+    val screenCaptureIntent = mediaProjectionManager.createScreenCaptureIntent()
+
+    val startMediaProjectionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {    // user granted the requested permission
+            val startServiceIntent = Intent(context, ScreenCaptureService::class.java)
+            startServiceIntent.action = ScreenCaptureService.Actions.START_PROJECTION.toString()
+            startServiceIntent.putExtra("resultCode", result.resultCode)
+            startServiceIntent.putExtra("data", result.data)
+            context.startService(startServiceIntent)
+        } else {    // no permission from user
+            Toast.makeText(context, "Permission required for Auto mode", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     StyledButton(
         text = "AUTO",
         onClick = {
-            // Testing Auto Capture Mode
-
-            Intent(context, AutoCaptureService::class.java).also { intent ->
-                intent.action = AutoCaptureService.Actions.START.toString()
-                // TODO: initialize mediaProjectionService, and put as parcelable in intent for accessibility service to use?
-                context.startService(intent)
-            }
+            startMediaProjectionLauncher.launch(screenCaptureIntent)
         }
     )
 }

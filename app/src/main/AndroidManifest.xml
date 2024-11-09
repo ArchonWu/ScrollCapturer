@@ -31,16 +31,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <service
             android:name=".services.AutoCaptureService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
         <service
-            android:name=".services.GestureScrollAccessibilityService"
+            android:name=".services.GestureScrollService"
             android:exported="true"
-            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
-            android:label="AutoScrollCapture">
+            android:label="AutoScrollCapture"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
             </intent-filter>
@@ -49,10 +50,9 @@
                 android:resource="@xml/accessibility_service_config" />
         </service>
         <service
-            android:name=".services.MediaProjectionService"
-            android:foregroundServiceType="mediaProjection"
-            android:exported="false">
-        </service>
+            android:name=".services.ScreenCaptureService"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection" />
     </application>
 
 </manifest>

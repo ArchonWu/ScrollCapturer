@@ -1,8 +1,10 @@
 package com.example.scrollcapturer.services
 
+import android.app.Notification
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
+import android.media.projection.MediaProjectionManager
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
@@ -30,7 +32,47 @@ class AutoCaptureService : Service() {
     }
 
     private fun start() {
+        val notification = makeAutoCaptureServiceNotification()
+        startForeground(1, notification)
+        Log.d("ACS_start()", "hi")
+    }
 
+    private fun startAutoScrollAndCapture() {
+        Log.d("S_startAutoScrollAndCapture()", "")
+
+        // intent for accessibility service to collapse status bar
+        val collapseStatusBarIntent = Intent(this, GestureScrollService::class.java)
+        collapseStatusBarIntent.action = "com.example.scrollcapturer.COLLAPSE_STATUS_BAR"
+        startService(collapseStatusBarIntent)
+
+        handler.postDelayed({
+            isScrolling = true
+            continuousScrollDownPage()
+            captureCurrentScreen()
+        }, 1750)
+    }
+
+    private fun continuousScrollDownPage() {
+        if (!isScrolling) return
+
+        // intent for accessibility service to scroll down by half page
+        val scrollDownByHalfPageIntent = Intent(this, GestureScrollService::class.java)
+        scrollDownByHalfPageIntent.action = "com.example.scrollcapturer.SCROLL_DOWN_HALF_PAGE"
+        startService(scrollDownByHalfPageIntent)
+
+        handler.postDelayed({
+            continuousScrollDownPage()
+        }, 1750)
+    }
+
+    private fun captureCurrentScreen() {
+        val captureScreenIntent = Intent(this, ScreenCaptureService::class.java).apply {
+            action = ScreenCaptureService.Actions.CAPTURE_SCREEN.toString()
+        }
+        startService(captureScreenIntent)
+    }
+
+    private fun makeAutoCaptureServiceNotification(): Notification {
         // Start Auto Capture Button
         val startAutoCaptureIntent = Intent(this, AutoCaptureService::class.java)
         startAutoCaptureIntent.apply {
@@ -76,34 +118,7 @@ class AutoCaptureService : Service() {
             .addAction(R.drawable.ic_launcher_foreground, "Test", testPendingIntent)
             .build()
 
-        startForeground(1, notification)
-    }
-
-    private fun startAutoScrollAndCapture() {
-        Log.d("S_startAutoScrollAndCapture()", "")
-
-        // intent for accessibility service to collapse status bar
-        val collapseStatusBarIntent = Intent(this, GestureScrollAccessibilityService::class.java)
-        collapseStatusBarIntent.action = "com.example.scrollcapturer.COLLAPSE_STATUS_BAR"
-        startService(collapseStatusBarIntent)
-
-        handler.postDelayed({
-            isScrolling = true
-            continuousScrollDownPage()
-        }, 1750)
-    }
-
-    private fun continuousScrollDownPage() {
-        if (!isScrolling) return
-
-        // intent for accessibility service to scroll down by half page
-        val scrollDownByHalfPageIntent = Intent(this, GestureScrollAccessibilityService::class.java)
-        scrollDownByHalfPageIntent.action = "com.example.scrollcapturer.SCROLL_DOWN_HALF_PAGE"
-        startService(scrollDownByHalfPageIntent)
-
-        handler.postDelayed({
-            continuousScrollDownPage()
-        }, 1750)
+        return notification
     }
 
     enum class Actions {

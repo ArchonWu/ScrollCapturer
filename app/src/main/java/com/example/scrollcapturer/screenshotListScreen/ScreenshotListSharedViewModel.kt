@@ -2,6 +2,7 @@ package com.example.scrollcapturer.screenshotListScreen
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.media.projection.MediaProjection
 import android.net.Uri
 import android.util.Log
 import android.view.View
@@ -18,6 +19,8 @@ import javax.inject.Inject
 class ScreenshotListSharedViewModel @Inject constructor() : ViewModel() {
     var selectedImagesUri: List<Uri> by mutableStateOf(emptyList())
         private set
+
+    var mediaProjection: MediaProjection? = null
 
     fun addImageUris(addUris: List<Uri>) {
         viewModelScope.launch {
