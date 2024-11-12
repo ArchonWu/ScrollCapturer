@@ -34,15 +34,7 @@ class GestureScrollService : AccessibilityService() {
 
         when (event.eventType) {
 
-            AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> {}
-
-            AccessibilityEvent.TYPE_VIEW_SCROLLED -> {
-//                Log.d("AS", "View scrolled $event")
-            }
-
-            AccessibilityEvent.TYPE_VIEW_CLICKED -> {
-                stopAutoScroll()
-            }
+            AccessibilityEvent.TYPE_VIEW_CLICKED -> stopAutoScroll()
 
             else -> {}
 //                Log.d(                "AS_AS",

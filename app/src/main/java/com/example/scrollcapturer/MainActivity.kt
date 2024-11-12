@@ -72,7 +72,7 @@ class MainActivity : ComponentActivity() {
             ScrollCapturerTheme {
                 Column(
                     modifier = Modifier
-                        .background(Color.LightGray)
+                        .background(color = Color.White)
                         .padding(WindowInsets.statusBars.asPaddingValues())
                         .padding(WindowInsets.navigationBars.asPaddingValues())
                 )

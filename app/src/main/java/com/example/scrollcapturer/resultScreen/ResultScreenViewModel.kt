@@ -26,7 +26,7 @@ class ResultScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
     // get the downloads directory
-    val downloadsDir =
+    private val downloadsDir: File =
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
 
     init {
@@ -64,7 +64,7 @@ class ResultScreenViewModel @Inject constructor(
             fos = withContext(Dispatchers.IO) {
                 FileOutputStream(imageFile)
             }
-            // use the compress method on the BitMap object to write image to the OutputStream
+            // use the compress method on the bitmap object to write image to the output stream
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
         } catch (e: Exception) {
             e.printStackTrace()

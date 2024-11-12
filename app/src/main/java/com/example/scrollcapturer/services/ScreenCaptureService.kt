@@ -6,7 +6,8 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.graphics.ImageFormat
+import android.graphics.Bitmap
+import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
 import android.media.ImageReader
@@ -17,6 +18,8 @@ import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.scrollcapturer.R
+import java.io.File
+import java.io.FileOutputStream
 
 
 class ScreenCaptureService : Service() {
@@ -25,9 +28,15 @@ class ScreenCaptureService : Service() {
     private var imageReader: ImageReader? = null
     private var virtualDisplay: VirtualDisplay? = null
     private var mediaProjection: MediaProjection? = null
+    private var appDirectory: File? = null
 
     private var isScrolling = false
     private val handler = android.os.Handler(Looper.getMainLooper())
+
+    private var screenWidth = 0
+    private var screenHeight = 0
+
+    private var IMAGES_PRODUCED = 0
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -36,11 +45,11 @@ class ScreenCaptureService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(tag, intent.toString())
         when (intent?.action) {
-            Actions.START_PROJECTION.toString() -> startProjection(intent)
-            Actions.STOP_PROJECTION.toString() -> stopProjection()
-            Actions.START_AUTO_CAPTURE.toString() -> startAutoScrollAndCapture()
-            Actions.CAPTURE_SCREEN.toString() -> captureCurrentScreen()
-            Actions.STOP_CONTINUOUS_SCROLL.toString() -> isScrolling = false
+            Actions.START_PROJECTION.toString() -> startProjection(intent)      // start service
+            Actions.STOP_PROJECTION.toString() -> stopProjection()              // stop service
+            Actions.START_AUTO_CAPTURE.toString() -> startAutoScrollAndCapture()    // start capture
+            Actions.CAPTURE_SCREEN.toString() -> captureCurrentScreen()             // capture screen once
+            Actions.STOP_CONTINUOUS_SCROLL.toString() -> isScrolling = false    //completeCapture()          // stop auto-scrolling and capturing
         }
         return super.onStartCommand(intent, flags, startId)
     }
@@ -48,8 +57,70 @@ class ScreenCaptureService : Service() {
     override fun onCreate() {
         super.onCreate()
 
-        // create temporary directory for storing captured screenshots
+        // create predefined app directory for storing captured screenshots
+        // path: Android/data/com.example.scrollcapturer/files/screenshots
+        appDirectory = File(getExternalFilesDir(null), "/temp_screenshots")
+        if (!appDirectory!!.exists()) {
+            val success = appDirectory!!.mkdirs()
+            if (success) {
+                Log.d(tag, "onCreate(), created app directory")
+            } else {
+                Log.d(tag, "onCreate(), failed")
+                stopSelf()
+            }
+        } else {
+            Log.d(tag, "onCreate(), appDirectory already exists.")
+        }
+    }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(tag, "onDestroy")
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        stopProjection()
+    }
+
+    private fun captureCurrentScreen() {
+        Log.d(tag, "captureCurrentScreen()")
+
+        var fos: FileOutputStream? = null
+        var bitmap: Bitmap? = null
+        val image = imageReader?.acquireLatestImage()
+
+        try {
+            image?.let {
+                val planes = image.planes
+                val buffer = planes[0].buffer
+                val pixelStride = planes[0].pixelStride
+                val rowStride = planes[0].rowStride
+                val rowPadding: Int = rowStride - pixelStride * screenWidth
+
+                // create bitmap
+                bitmap = Bitmap.createBitmap(
+                    screenWidth + rowPadding / pixelStride,
+                    screenHeight,
+                    Bitmap.Config.ARGB_8888
+                )
+
+                bitmap!!.copyPixelsFromBuffer(buffer)
+
+                // write bitmap to a file
+                val imageFile = File(appDirectory, "screen_$IMAGES_PRODUCED.png")
+                fos = FileOutputStream(imageFile)
+                bitmap!!.compress(Bitmap.CompressFormat.PNG, 100, fos!!)
+
+                IMAGES_PRODUCED++
+
+                Log.e(tag, "captured image: $IMAGES_PRODUCED, ${imageFile.absolutePath}")
+            }
+        } catch (e: Exception) {
+            Log.e(tag, "error capturing screen")
+            Log.e(tag, e.toString())
+        } finally {
+            fos?.close()
+            bitmap?.recycle()
+            image?.close()
+        }
     }
 
     private fun startAutoScrollAndCapture() {
@@ -62,9 +133,24 @@ class ScreenCaptureService : Service() {
 
         handler.postDelayed({
             isScrolling = true
+            captureCurrentScreen() // capture the first screen before scrolling
             continuousScrollDownPage()
-            captureCurrentScreen()
         }, 1750)
+
+//        handler.postDelayed({
+//            captureCurrentScreen()
+//        }, 1000)
+//
+//        handler.postDelayed({
+//            isScrolling = true
+//            continuousScrollDownPage()
+//        }, 1750)
+    }
+
+    private fun completeCapture() {
+        Log.d(tag, "completeCapture()")
+        handler.removeCallbacksAndMessages(null)    // remove scheduled tasks in handler (e.g. more captureCurrentScreen() and scroll())
+        isScrolling = false
     }
 
     private fun continuousScrollDownPage() {
@@ -78,6 +164,7 @@ class ScreenCaptureService : Service() {
 
         handler.postDelayed({
             continuousScrollDownPage()
+            captureCurrentScreen()
         }, 1750)
     }
 
@@ -88,12 +175,14 @@ class ScreenCaptureService : Service() {
         startForeground(2, notification)
 
         val metrics = resources.displayMetrics
+        screenWidth = metrics.widthPixels
+        screenHeight = metrics.heightPixels
 
         // initialize imageReader
         imageReader = ImageReader.newInstance(
-            metrics.widthPixels,
-            metrics.heightPixels,
-            ImageFormat.RGB_565,
+            screenWidth,
+            screenHeight,
+            PixelFormat.RGBA_8888,
             2
         )
 
@@ -137,11 +226,8 @@ class ScreenCaptureService : Service() {
         virtualDisplay = null
         imageReader = null
         mediaProjection = null
-    }
 
-    private fun captureCurrentScreen() {
-        Log.d(tag, "captureScreen()")
-
+        stopSelf() // stops the service
     }
 
     private fun makeServiceNotification(): Notification {
