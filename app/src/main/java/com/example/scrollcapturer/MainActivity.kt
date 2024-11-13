@@ -3,16 +3,11 @@ package com.example.scrollcapturer
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.content.Intent
-import android.media.projection.MediaProjection
-import android.media.projection.MediaProjectionManager
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -20,8 +15,10 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.core.app.ActivityCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
@@ -65,7 +62,7 @@ class MainActivity : ComponentActivity() {
             Log.i("OpenCV", "OpenCV successfully loaded.")
         } else {
             Log.e("OpenCV", "OpenCV initialization failed.")
-        }
+        }.toInt()
 
         enableEdgeToEdge()
         setContent {
@@ -80,6 +77,15 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     val sharedViewModel: ScreenshotListSharedViewModel = hiltViewModel()
                     val stitchScreenViewModel: StitchScreenViewModel = hiltViewModel()
+
+                    val statusBarPadding = WindowInsets.statusBars.asPaddingValues()
+                    val navigationBarPadding = WindowInsets.navigationBars.asPaddingValues()
+                    val density = LocalDensity.current
+                    val statusBarHeightPx = with(density) { statusBarPadding.calculateTopPadding().toPx().toInt() }
+                    val navigationBarHeightPx = with(density) { navigationBarPadding.calculateBottomPadding().toPx().toInt() }
+                    LaunchedEffect(statusBarHeightPx, navigationBarHeightPx) {
+                        stitchScreenViewModel.setInsets(statusBarHeightPx, navigationBarHeightPx)
+                    }
 
                     NavHost(
                         navController = navController,

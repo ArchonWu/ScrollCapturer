@@ -3,7 +3,10 @@ package com.example.scrollcapturer.stitchscreen
 import android.content.ContentResolver
 import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Log
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
@@ -45,6 +48,12 @@ class StitchScreenViewModel @Inject constructor(
 
     var resultImageBitmap by mutableStateOf(ImageBitmap(1, 1))
         private set
+
+    private var statusBarHeightPx by mutableIntStateOf(0)
+
+    private var navigationBarHeightPx by mutableIntStateOf(0)
+
+    private val tag = "StitchScreenViewModel"
 
     fun stitchAllImages(imagesUri: List<Uri>, contentResolver: ContentResolver): ImageBitmap {
 
@@ -105,7 +114,8 @@ class StitchScreenViewModel @Inject constructor(
             Size(imageMat1.cols().toDouble(), targetHeight.toDouble())
         )
 
-        val bottomIrrelevantRows = 150
+        val topIrrelevantRows = statusBarHeightPx
+        val bottomIrrelevantRows = navigationBarHeightPx
         val rowsToCopy = imageMat1.rows() - bottomIrrelevantRows
 
         // place image1 onto the warped result
@@ -183,18 +193,18 @@ class StitchScreenViewModel @Inject constructor(
         val descriptors2 = Mat()
 
         // feature matching only needs to be done on the bottom & top part of images
-        // for image1: roi is 1/2 screenHeight of the bottom of the image
-        // for image2: roi is 1/2 screenHeight of the top of the image
+        // for image1: roi is 1/2 screenHeight of the bottom of the image, stops before navigationBarHeightPx
+        // for image2: roi is 1/2 screenHeight of the top of the image, starts after statusBarHeightPx
         val roiImageMat1 =
             imageMat1.submat(
                 imageMat1.rows() - screenHeight / 2,
-                imageMat1.rows(),
+                imageMat1.rows() - navigationBarHeightPx,
                 0,
                 imageMat1.cols()
             )
         val roiImageMat2 =
             imageMat2.submat(
-                0,
+                statusBarHeightPx,
                 screenHeight / 2,
                 0,
                 imageMat2.cols()
@@ -203,7 +213,7 @@ class StitchScreenViewModel @Inject constructor(
         siftDetector.detectAndCompute(roiImageMat2, Mat(), keypoints2, descriptors2)
 
         // adjust coordinates of keypoints1 due to performing SIFT on only bottom part of image1
-        val offsetY = imageMat1.rows() - screenHeight / 2
+        val offsetY = imageMat1.rows() - screenHeight / 2 - statusBarHeightPx
         val adjustedKeypoints1 = keypoints1.toArray().map { keypoint ->
             keypoint.pt.y += offsetY
             keypoint
@@ -231,5 +241,10 @@ class StitchScreenViewModel @Inject constructor(
         goodMatches.fromList(goodMatchesList)
 
         return SiftMatchResult(goodMatches, adjustedMatOfKeypoints1, keypoints2)
+    }
+
+    fun setInsets(statusBarHeight: Int, navigationBarHeight: Int) {
+        statusBarHeightPx = statusBarHeight
+        navigationBarHeightPx = navigationBarHeight
     }
 }
