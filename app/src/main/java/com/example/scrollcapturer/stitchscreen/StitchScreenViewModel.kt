@@ -34,7 +34,7 @@ import javax.inject.Inject
 // handles the feature matching & stitching
 @HiltViewModel
 class StitchScreenViewModel @Inject constructor(
-    val screenHeight: Int
+    private val screenHeight: Int
 ) : ViewModel() {
 
     var visualizeImageList by mutableStateOf<List<ImageBitmap>>(emptyList())

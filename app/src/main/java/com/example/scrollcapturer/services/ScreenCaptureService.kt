@@ -134,6 +134,11 @@ class ScreenCaptureService : Service() {
         handler.postDelayed({
             isScrolling = true
             captureCurrentScreen() // capture the first screen before scrolling
+
+            // TODO: pass the new captured screen to combine
+
+
+            // repeatedly capture and scrolling down while combining them
             continuousScrollDownPage()
         }, 1750)
 
@@ -149,8 +154,11 @@ class ScreenCaptureService : Service() {
 
     private fun completeCapture() {
         Log.d(tag, "completeCapture()")
-        handler.removeCallbacksAndMessages(null)    // remove scheduled tasks in handler (e.g. more captureCurrentScreen() and scroll())
         isScrolling = false
+//        handler.removeCallbacksAndMessages(null)    // remove scheduled tasks in handler (e.g. more captureCurrentScreen() and scroll())
+
+        // TODO: open the app and navigate to the result screen with the combined image
+
     }
 
     private fun continuousScrollDownPage() {
@@ -165,6 +173,9 @@ class ScreenCaptureService : Service() {
         handler.postDelayed({
             continuousScrollDownPage()
             captureCurrentScreen()
+
+            //  TODO: pass the new captured screen to combine
+
         }, 1750)
     }
 
