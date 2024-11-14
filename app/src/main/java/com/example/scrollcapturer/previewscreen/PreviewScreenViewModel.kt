@@ -1,4 +1,4 @@
-package com.example.scrollcapturer.stitchscreen
+package com.example.scrollcapturer.previewscreen
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 // handles the feature matching & stitching
 @HiltViewModel
-class StitchScreenViewModel @Inject constructor(
+class PreviewScreenViewModel @Inject constructor(
     private val imageCombiner: ImageCombiner
 ) : ViewModel() {
 

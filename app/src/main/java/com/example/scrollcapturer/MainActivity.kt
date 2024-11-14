@@ -29,8 +29,8 @@ import com.example.scrollcapturer.resultScreen.ResultScreen
 import com.example.scrollcapturer.screenshotListScreen.ScreenshotListScreen
 import com.example.scrollcapturer.screenshotListScreen.ScreenshotListSharedViewModel
 import com.example.scrollcapturer.services.ScreenCaptureService
-import com.example.scrollcapturer.stitchscreen.StitchScreen
-import com.example.scrollcapturer.stitchscreen.StitchScreenViewModel
+import com.example.scrollcapturer.previewscreen.PreviewScreenViewModel
+import com.example.scrollcapturer.previewscreen.PreviewScreen
 import dagger.hilt.android.AndroidEntryPoint
 import org.opencv.android.OpenCVLoader
 import javax.inject.Inject
@@ -84,7 +84,7 @@ class MainActivity : ComponentActivity() {
                 {
                     val navController = rememberNavController()
                     val sharedViewModel: ScreenshotListSharedViewModel = hiltViewModel()
-                    val stitchScreenViewModel: StitchScreenViewModel = hiltViewModel()
+                    val previewScreenViewModel: PreviewScreenViewModel = hiltViewModel()
 
                     // set statusBarHeightPx, navigationBarHeightPx, screenHeight for imageCombiner
                     val statusBarPadding = WindowInsets.statusBars.asPaddingValues()
@@ -107,10 +107,10 @@ class MainActivity : ComponentActivity() {
                             ScreenshotListScreen(navController, sharedViewModel)
                         }
                         composable("stitch_screen") {
-                            StitchScreen(navController, sharedViewModel, stitchScreenViewModel)
+                            PreviewScreen(navController, sharedViewModel, previewScreenViewModel)
                         }
                         composable("result_screen") {
-                            ResultScreen(navController, stitchScreenViewModel)
+                            ResultScreen(navController, previewScreenViewModel)
                         }
                     }
                 }

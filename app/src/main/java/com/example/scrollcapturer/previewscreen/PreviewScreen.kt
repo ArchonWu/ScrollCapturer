@@ -1,10 +1,9 @@
-package com.example.scrollcapturer.stitchscreen
+package com.example.scrollcapturer.previewscreen
 
 import android.content.ContentResolver
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,11 +15,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.scrollcapturer.screenshotListScreen.ScreenshotListSharedViewModel
@@ -29,10 +26,10 @@ import com.example.scrollcapturer.ui.components.StyledButton
 import com.example.scrollcapturer.utils.ImageUtils
 
 @Composable
-fun StitchScreen(
+fun PreviewScreen(
     navController: NavController,
     sharedViewModel: ScreenshotListSharedViewModel,
-    viewModel: StitchScreenViewModel
+    previewScreenViewModel: PreviewScreenViewModel
 ) {
 
     val context = LocalContext.current
@@ -77,7 +74,7 @@ fun StitchScreen(
         MenuBar(
             buttons = listOf(
                 { BackButton(navController) },
-                { StartStitchingButton(navController, viewModel, contentResolver, imageUriList) })
+                { StartStitchingButton(navController, previewScreenViewModel, contentResolver, imageUriList) })
         )
     }
 }
@@ -93,13 +90,13 @@ fun BackButton(navController: NavController) {
 @Composable
 fun StartStitchingButton(
     navController: NavController,
-    viewModel: StitchScreenViewModel,
+    previewScreenViewModel: PreviewScreenViewModel,
     contentResolver: ContentResolver,
     imageUriList: List<Uri>
 ) {
     StyledButton(text = "COMBINE", onClick = {
         val imageMatList = ImageUtils.convertUrisToMats(imageUriList, contentResolver)
-        viewModel.stitchAllImages(imageMatList)
+        previewScreenViewModel.stitchAllImages(imageMatList)
         navController.navigate("result_screen")
     })
 }

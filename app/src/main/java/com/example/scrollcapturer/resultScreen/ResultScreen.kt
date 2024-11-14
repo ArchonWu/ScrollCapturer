@@ -11,7 +11,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -26,17 +25,17 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.scrollcapturer.stitchscreen.StitchScreenViewModel
+import com.example.scrollcapturer.previewscreen.PreviewScreenViewModel
 import com.example.scrollcapturer.ui.components.MenuBar
 import com.example.scrollcapturer.ui.components.StyledButton
 
 @Composable
 fun ResultScreen(
     navController: NavController,
-    stitchScreenViewModel: StitchScreenViewModel,
+    previewScreenViewModel: PreviewScreenViewModel,
     resultScreenViewModel: ResultScreenViewModel = hiltViewModel()
 ) {
-    val resultImageBitmap = stitchScreenViewModel.resultImageBitmap
+    val resultImageBitmap = previewScreenViewModel.resultImageBitmap
 
     ResultImage(resultImageBitmap)
 
