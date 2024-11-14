@@ -1,6 +1,7 @@
 package com.example.scrollcapturer.di
 
 import android.content.Context
+import com.example.scrollcapturer.ImageCombiner
 import com.example.scrollcapturer.services.ScreenCaptureService
 import dagger.Module
 import dagger.Provides
@@ -21,8 +22,15 @@ object AppModule {
         return displayMetrics.heightPixels
     }
 
+    @Singleton
     @Provides
     fun provideScreenCaptureService(): ScreenCaptureService {
         return ScreenCaptureService()
+    }
+
+    @Singleton
+    @Provides
+    fun provideImageCombiner(): ImageCombiner {
+        return ImageCombiner()
     }
 }

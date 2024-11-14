@@ -39,8 +39,6 @@ fun StitchScreen(
     val contentResolver = context.contentResolver
 
     val imageUriList = sharedViewModel.selectedImagesUri
-    val visualizeImageList = viewModel.visualizeImageList
-    val flaggedImageList = viewModel.flaggedImageList
 
     Box(
         modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
@@ -105,60 +103,4 @@ fun StartStitchingButton(
         navController.navigate("result_screen")
     })
 }
-
-
-// TODO: should be moved to a new screen
-// visualize goodMatches
-//        Box(
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .border(width = 6.dp, Color.Magenta),
-//            contentAlignment = Alignment.TopEnd
-//        ) {
-//            if (visualizeImageList.isEmpty()) {
-//                Text(text = "NO IMAGES WERE ADDED")
-//            } else {
-//                LazyColumn {
-//                    items(visualizeImageList) { image ->
-//                        Image(
-//                            bitmap = image,
-//                            contentDescription = "visualize good matches image",
-//                            modifier = Modifier
-//                                .size(400.dp)
-//                        )
-//                    }
-//                }
-//            }
-//        }
-
-
-// Display flagged images if there are too few goodMatches detected
-// otherwise display a "no problem detected" text with a green tick
-//    Box(
-//        modifier = Modifier.fillMaxSize(),
-//        contentAlignment = Alignment.TopEnd
-//    ) {
-//        if (imageUriList.isEmpty()) {
-//            Text(text = "NO IMAGES WERE ADDED")
-//        } else {
-//            LazyColumn {
-//                items(flaggedImageList) { flaggedImage ->
-//                    Image(
-//                        bitmap = flaggedImage,
-//                        contentDescription = "flagged image",
-//                        modifier = Modifier
-//                            .size(400.dp)
-//                    )
-//                }
-//            }
-//        }
-//    }
-//    Box(
-//        modifier = Modifier.fillMaxSize(),
-//        contentAlignment = Alignment.BottomStart
-//    ) {
-//        Button(onClick = { }) {
-//            Text("Preview")
-//        }
-//    }
 
