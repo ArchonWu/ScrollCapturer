@@ -47,6 +47,10 @@
             android:name=".services.ScreenCaptureService"
             android:exported="false"
             android:foregroundServiceType="mediaProjection" />
+        <service
+            android:name=".services.TestService"
+            android:exported="false"
+            android:foregroundServiceType="" />
     </application>
 
 </manifest>

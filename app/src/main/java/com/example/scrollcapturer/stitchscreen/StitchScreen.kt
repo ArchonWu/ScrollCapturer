@@ -26,6 +26,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.scrollcapturer.screenshotListScreen.ScreenshotListSharedViewModel
 import com.example.scrollcapturer.ui.components.MenuBar
 import com.example.scrollcapturer.ui.components.StyledButton
+import com.example.scrollcapturer.utils.ImageUtils
 
 @Composable
 fun StitchScreen(
@@ -99,7 +100,8 @@ fun StartStitchingButton(
     imageUriList: List<Uri>
 ) {
     StyledButton(text = "COMBINE", onClick = {
-        viewModel.stitchAllImages(imageUriList, contentResolver)
+        val imageMatList = ImageUtils.convertUrisToMats(imageUriList, contentResolver)
+        viewModel.stitchAllImages(imageMatList)
         navController.navigate("result_screen")
     })
 }

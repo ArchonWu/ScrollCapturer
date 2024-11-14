@@ -1,10 +1,7 @@
 package com.example.scrollcapturer.stitchscreen
 
-import android.content.ContentResolver
 import android.graphics.Bitmap
-import android.net.Uri
 import android.util.Log
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -14,24 +11,30 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.scrollcapturer.models.SiftMatchResult
+import com.example.scrollcapturer.utils.ImageUtils
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.opencv.calib3d.Calib3d
+import org.opencv.calib3d.Calib3d.RANSAC
+import org.opencv.core.Core
 import org.opencv.core.DMatch
 import org.opencv.core.Mat
 import org.opencv.core.MatOfDMatch
 import org.opencv.core.MatOfKeyPoint
-import org.opencv.features2d.Features2d
-import org.opencv.features2d.FlannBasedMatcher
-import org.opencv.features2d.SIFT
-import com.example.scrollcapturer.utils.ImageUtils
-import org.opencv.calib3d.Calib3d
-import org.opencv.calib3d.Calib3d.RANSAC
-import org.opencv.core.Core
 import org.opencv.core.MatOfPoint2f
 import org.opencv.core.Point
 import org.opencv.core.Size
+import org.opencv.features2d.Features2d
+import org.opencv.features2d.FlannBasedMatcher
+import org.opencv.features2d.SIFT
 import org.opencv.imgproc.Imgproc.warpPerspective
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 // handles the feature matching & stitching
@@ -55,16 +58,47 @@ class StitchScreenViewModel @Inject constructor(
 
     private val tag = "StitchScreenViewModel"
 
-    fun stitchAllImages(imagesUri: List<Uri>, contentResolver: ContentResolver): ImageBitmap {
+    private val capturedImages = mutableListOf<Bitmap>()
+
+    fun collectScreenshots(screenshotFlow: SharedFlow<Bitmap>) {
+        Log.d(tag, "Collecting screenshots...; $screenshotFlow")
+
+        viewModelScope.launch() {
+            Log.d(tag, "launched...")
+
+            screenshotFlow.collect { screenshot ->
+                // Handle the screenshot here
+                Log.d("ViewModel", "Received screenshot: $screenshot")
+                capturedImages.add(screenshot)
+            }
+
+            // collection is finished, stitch the images
+//            withContext(Dispatchers.IO) {
+//                Log.d(tag, "screenshotFlow, collection complete")
+//                stitchCapturedImages()
+//            }
+        }
+    }
+
+    private fun stitchCapturedImages() {
+        viewModelScope.launch {
+            try {
+                val stitchedImage = stitchAllImages(ImageUtils.convertBitmapToMat(capturedImages))
+                Log.d(tag, "stitchCapturedImages() finished")
+            } catch (e: Exception) {
+                Log.e(tag, e.toString())
+            }
+        }
+    }
+
+    fun stitchAllImages(imageMats: List<Mat>): ImageBitmap {
 
         viewModelScope.launch(Dispatchers.IO) {
 
-            val imagesMats = ImageUtils.convertUrisToMats(imagesUri, contentResolver)
-
             // iteratively stitches two images in the list: do feature matching, and images stitching
-            var resultStitchedImage = imagesMats[0]
-            for (i in 1 until imagesMats.size) {
-                resultStitchedImage = stitchImage(resultStitchedImage, imagesMats[i])
+            var resultStitchedImage = imageMats[0]
+            for (i in 1 until imageMats.size) {
+                resultStitchedImage = stitchImage(resultStitchedImage, imageMats[i])
             }
 
             resultImageBitmap = ImageUtils.convertMatToBitmap(resultStitchedImage).asImageBitmap()

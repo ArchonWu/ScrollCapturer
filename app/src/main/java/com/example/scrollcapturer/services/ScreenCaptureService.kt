@@ -18,10 +18,17 @@ import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.scrollcapturer.R
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 
-
+@AndroidEntryPoint
 class ScreenCaptureService : Service() {
 
     private val tag = "ScreenCaptureService"
@@ -36,7 +43,10 @@ class ScreenCaptureService : Service() {
     private var screenWidth = 0
     private var screenHeight = 0
 
-    private var IMAGES_PRODUCED = 0
+    private var imagesProduced = 0
+
+    private val _screenshotFlow = MutableSharedFlow<Bitmap>(replay = 1)
+    val screenshotFlow: SharedFlow<Bitmap> get() = _screenshotFlow
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -47,11 +57,52 @@ class ScreenCaptureService : Service() {
         when (intent?.action) {
             Actions.START_PROJECTION.toString() -> startProjection(intent)      // start service
             Actions.STOP_PROJECTION.toString() -> stopProjection()              // stop service
-            Actions.START_AUTO_CAPTURE.toString() -> startAutoScrollAndCapture()    // start capture
+//            Actions.START_AUTO_CAPTURE.toString() -> startAutoScrollAndCapture()    // start capture
+            Actions.START_AUTO_CAPTURE.toString() -> {
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        executeAutoScrollAndCapture()
+                    } catch (e: Exception) {
+                        Log.e(tag, e.toString())
+                    }
+                }
+            }
             Actions.CAPTURE_SCREEN.toString() -> captureCurrentScreen()             // capture screen once
-            Actions.STOP_CONTINUOUS_SCROLL.toString() -> isScrolling = false    //completeCapture()          // stop auto-scrolling and capturing
+            Actions.STOP_CONTINUOUS_SCROLL.toString() -> isScrolling =
+                false    //completeCapture()          // stop auto-scrolling and capturing
         }
         return super.onStartCommand(intent, flags, startId)
+    }
+
+    private suspend fun executeAutoScrollAndCapture() {
+
+        // intent for accessibility service to collapse status bar
+        val collapseStatusBarIntent = Intent(this, GestureScrollService::class.java)
+        collapseStatusBarIntent.action = GestureScrollService.Actions.COLLAPSE_STATUS_BAR.toString()
+        startService(collapseStatusBarIntent)
+        delay(1000L)
+
+        isScrolling = true
+
+        while (isScrolling) {
+
+            // capture the screenshot, and emit to _screenshotFlow
+            val screenshotBitmap = captureScreenshot()
+            if (screenshotBitmap != null) {
+                _screenshotFlow.emit(screenshotBitmap)
+                Log.d(tag, "emitted screenshot: $screenshotBitmap, $screenshotFlow, $_screenshotFlow")
+            }
+            delay(1750L)
+
+            // intent for accessibility service to scroll down by half page
+            val scrollDownByHalfPageIntent = Intent(this, GestureScrollService::class.java)
+            scrollDownByHalfPageIntent.action =
+                GestureScrollService.Actions.SCROLL_DOWN_HALF_PAGE.toString()
+            if (isScrolling){
+                startService(scrollDownByHalfPageIntent)
+                delay(1000L)
+            }
+        }
     }
 
     override fun onCreate() {
@@ -80,6 +131,39 @@ class ScreenCaptureService : Service() {
         stopProjection()
     }
 
+    private fun captureScreenshot(): Bitmap? {
+        Log.d(tag, "captureScreenshot()")
+
+        var bitmap: Bitmap? = null
+        val image = imageReader?.acquireLatestImage()
+
+        try {
+            image?.let {
+                val planes = image.planes
+                val buffer = planes[0].buffer
+                val pixelStride = planes[0].pixelStride
+                val rowStride = planes[0].rowStride
+                val rowPadding: Int = rowStride - pixelStride * screenWidth
+
+                // create bitmap
+                bitmap = Bitmap.createBitmap(
+                    screenWidth + rowPadding / pixelStride,
+                    screenHeight,
+                    Bitmap.Config.ARGB_8888
+                )
+                bitmap!!.copyPixelsFromBuffer(buffer)
+
+            }
+        } catch (e: Exception) {
+            Log.e(tag, "error capturing screen")
+            Log.e(tag, e.toString())
+        } finally {
+            image?.close()
+        }
+
+        return bitmap
+    }
+
     private fun captureCurrentScreen() {
         Log.d(tag, "captureCurrentScreen()")
 
@@ -105,13 +189,13 @@ class ScreenCaptureService : Service() {
                 bitmap!!.copyPixelsFromBuffer(buffer)
 
                 // write bitmap to a file
-                val imageFile = File(appDirectory, "screen_$IMAGES_PRODUCED.png")
+                val imageFile = File(appDirectory, "screen_$imagesProduced.png")
                 fos = FileOutputStream(imageFile)
                 bitmap!!.compress(Bitmap.CompressFormat.PNG, 100, fos!!)
 
-                IMAGES_PRODUCED++
+                imagesProduced++
 
-                Log.e(tag, "captured image: $IMAGES_PRODUCED, ${imageFile.absolutePath}")
+                Log.e(tag, "captured image: $imagesProduced, ${imageFile.absolutePath}")
             }
         } catch (e: Exception) {
             Log.e(tag, "error capturing screen")

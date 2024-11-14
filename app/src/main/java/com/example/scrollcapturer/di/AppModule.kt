@@ -1,9 +1,7 @@
 package com.example.scrollcapturer.di
 
 import android.content.Context
-import android.content.Intent
-import android.media.projection.MediaProjection
-import android.media.projection.MediaProjectionManager
+import com.example.scrollcapturer.services.ScreenCaptureService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,4 +21,8 @@ object AppModule {
         return displayMetrics.heightPixels
     }
 
+    @Provides
+    fun provideScreenCaptureService(): ScreenCaptureService {
+        return ScreenCaptureService()
+    }
 }

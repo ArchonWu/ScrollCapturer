@@ -5,13 +5,14 @@ import android.content.Context
 import android.content.Intent
 import android.media.projection.MediaProjectionManager
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -41,9 +42,6 @@ fun ScreenshotListScreen(
         contract = ActivityResultContracts.GetMultipleContents(),
         onResult = { uris: List<Uri> ->
             sharedViewModel.addImageUris(uris)
-            uris.forEach { uri ->
-                Log.d("ScreenshotListScreen_uri", "Image added: $uri")
-            }
         }
     )
 
@@ -73,7 +71,6 @@ fun ScreenshotListScreen(
 
 @Composable
 fun ScreenshotGrid(imageUriList: List<Uri>) {
-    Log.d("ScreenshotGrid", "GRID IS CALLED: $imageUriList")
     LazyVerticalGrid(
         columns = GridCells.Fixed(5),   // 5 images per row
         modifier = Modifier

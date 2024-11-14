@@ -69,4 +69,14 @@ object ImageUtils {
         return bitmap
     }
 
+    fun convertBitmapToMat(bitmapList: List<Bitmap>): List<Mat> {
+        val matList = mutableListOf<Mat>()
+        for (bitmap in bitmapList) {
+            val mat = Mat()
+            Utils.bitmapToMat(bitmap, mat)
+            matList.add(mat)
+        }
+        return matList
+    }
+
 }
