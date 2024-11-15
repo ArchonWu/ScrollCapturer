@@ -12,6 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -144,18 +145,21 @@ fun DialogTextField(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 // DismissButton
-                StyledButton(
-                    text = "CANCEL",
+                Button(
                     onClick = { onDismiss() }
-                )
+                ) {
+                    Text("CANCEL")
+                }
 
                 // ConfirmButton
-                StyledButton(
-                    text = "SAVE",
+                Button(
                     onClick = {
                         onSave()
                         onDismiss()
-                    })
+                    }
+                ) {
+                    Text("SAVE")
+                }
             }
         }
     )
