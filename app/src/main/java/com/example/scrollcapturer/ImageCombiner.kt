@@ -6,9 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.asImageBitmap
 import com.example.scrollcapturer.models.SiftMatchResult
 import com.example.scrollcapturer.utils.ImageUtils
@@ -77,6 +75,11 @@ class ImageCombiner {
         // apply transformation based on good matches and stitch images together
         val homographyMatrix = calculateHomographyMatrix(siftMatchResult)
 
+        if (homographyMatrix == null) {
+            // combine two images without homography
+            return simpleStitch(imageMat1, imageMat2)
+        }
+
         // get the corners of imageMat2
         val corners = MatOfPoint2f(
             Point(0.0, 0.0),
@@ -123,9 +126,40 @@ class ImageCombiner {
         return resultImageMat
     }
 
+    private fun simpleStitch(imageMat1: Mat, imageMat2: Mat): Mat {
+
+        val rowsToCopy1 = imageMat1.rows() - navigationBarHeightPx
+        val rowsToCopy2 = imageMat2.rows() - statusBarHeightPx
+
+        val targetHeight =
+            imageMat1.rows() + imageMat2.rows() - statusBarHeightPx - navigationBarHeightPx
+        val resultImageMat = Mat(targetHeight, imageMat1.cols(), imageMat1.type())
+        
+        imageMat1
+            .submat(0, rowsToCopy1, 0, imageMat1.cols())
+            .copyTo(resultImageMat.submat(0, rowsToCopy1, 0, imageMat1.cols()))
+
+        imageMat2
+            .submat(0, rowsToCopy2, 0, imageMat2.cols())
+            .copyTo(
+                resultImageMat.submat(
+                    rowsToCopy1, rowsToCopy1 + rowsToCopy2, 0, imageMat2.cols()
+                )
+            )
+
+        return resultImageMat
+    }
+
     // code adapted from opencv documentation:
     // https://docs.opencv.org/4.x/d7/dff/tutorial_feature_homography.html
-    private fun calculateHomographyMatrix(siftMatchResult: SiftMatchResult): Mat {
+    private fun calculateHomographyMatrix(siftMatchResult: SiftMatchResult): Mat? {
+
+//        Log.d(tag, "${siftMatchResult.goodMatches.size()}")
+
+        if (siftMatchResult.goodMatches.toList().size < 4) {
+            // not enough matches, cannot calculate homography
+            return null
+        }
 
         // extract matched points
         val obj = mutableListOf<Point>()
