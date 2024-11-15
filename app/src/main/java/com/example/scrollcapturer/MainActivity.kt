@@ -116,7 +116,11 @@ class MainActivity : ComponentActivity() {
                             PreviewScreen(navController, sharedViewModel, previewScreenViewModel)
                         }
                         composable("result_screen") {
-                            ResultScreen(navController, previewScreenViewModel)
+                            ResultScreen(
+                                navController,
+                                previewScreenViewModel,
+                                imageCombiner = imageCombiner
+                            )
                         }
                     }
                 }

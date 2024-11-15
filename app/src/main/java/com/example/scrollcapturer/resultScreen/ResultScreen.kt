@@ -1,5 +1,6 @@
 package com.example.scrollcapturer.resultScreen
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,6 +26,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.scrollcapturer.ImageCombiner
 import com.example.scrollcapturer.previewscreen.PreviewScreenViewModel
 import com.example.scrollcapturer.ui.components.MenuBar
 import com.example.scrollcapturer.ui.components.StyledButton
@@ -33,9 +35,12 @@ import com.example.scrollcapturer.ui.components.StyledButton
 fun ResultScreen(
     navController: NavController,
     previewScreenViewModel: PreviewScreenViewModel,
-    resultScreenViewModel: ResultScreenViewModel = hiltViewModel()
+    resultScreenViewModel: ResultScreenViewModel = hiltViewModel(),
+    imageCombiner: ImageCombiner
 ) {
-    val resultImageBitmap = previewScreenViewModel.resultImageBitmap
+//    val resultImageBitmap = previewScreenViewModel.resultImageBitmap      // TODO: change this logic to use imageCombiner's
+    val resultImageBitmap = imageCombiner.resultImageBitmap
+    Log.d("result_screen", "$resultImageBitmap")
 
     ResultImage(resultImageBitmap)
 

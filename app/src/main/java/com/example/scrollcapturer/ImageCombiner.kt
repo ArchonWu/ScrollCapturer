@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.ImageBitmap
@@ -34,12 +35,9 @@ class ImageCombiner {
 
     private var serviceCapturedImages = mutableListOf<Bitmap>()
     private var serviceCombineResult: ImageBitmap? = null
-    var resultImageBitmap: ImageBitmap = ImageBitmap(100, 100).apply {
-        val canvas = Canvas(this)
-        val paint = Paint()
-        canvas.drawRect(0f, 0f, 100f, 100f, paint)
-    }
 
+    var resultImageBitmap: ImageBitmap by mutableStateOf(ImageBitmap(1, 1))
+        private set
     private val tag = "ImageCombiner"
 
     fun processServiceCapturedImage(screenshotBitmap: Bitmap?) {
@@ -66,6 +64,7 @@ class ImageCombiner {
         clearServiceCapturedImages()
         Log.d(tag, "stitchAllServiceCapturedImages(): finished")
         resultImageBitmap = serviceCombineResult as ImageBitmap
+
         return resultImageBitmap
     }
 
