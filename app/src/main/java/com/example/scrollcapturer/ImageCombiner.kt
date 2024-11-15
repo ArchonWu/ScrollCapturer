@@ -220,6 +220,7 @@ class ImageCombiner {
 
     fun clearServiceCapturedImages() {
         serviceCapturedImages = mutableListOf<Bitmap>()
+        resultImageBitmap = (ImageBitmap(1, 1))
     }
 
     fun addScreenshotsFromMats(imageMats: List<Mat>) {

@@ -51,7 +51,7 @@ fun ResultScreen(
     ) {
         MenuBar(
             buttons = listOf(
-                { RestartButton(navController) },
+                { RestartButton(navController, imageCombiner) },
                 { SaveButton(resultScreenViewModel, resultImageBitmap) })
         )
     }
@@ -76,10 +76,13 @@ fun ResultImage(resultImageBitmap: ImageBitmap) {
 }
 
 @Composable
-fun RestartButton(navController: NavController) {
+fun RestartButton(navController: NavController, imageCombiner: ImageCombiner) {
     StyledButton(
         text = "RESTART",
-        onClick = { navController.navigate("screenshot_list_screen") }
+        onClick = {
+            navController.navigate("screenshot_list_screen")
+            imageCombiner.clearServiceCapturedImages()
+        }
     )
 }
 
