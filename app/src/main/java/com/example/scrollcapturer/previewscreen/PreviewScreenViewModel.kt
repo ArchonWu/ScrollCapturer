@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.scrollcapturer.ImageCombiner
 import com.example.scrollcapturer.utils.ImageUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,7 +21,7 @@ class PreviewScreenViewModel @Inject constructor(
 
     fun handleCombine(imageUriList: List<Uri>, contentResolver: ContentResolver) {
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val imageMatList = ImageUtils.convertUrisToMats(imageUriList, contentResolver)
             imageCombiner.addScreenshotsFromMats(imageMatList)
             imageCombiner.stitchAllImages()
