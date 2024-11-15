@@ -3,6 +3,7 @@ package com.example.scrollcapturer
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -21,16 +22,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.core.app.ActivityCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.scrollcapturer.ui.theme.ScrollCapturerTheme
 import androidx.navigation.compose.rememberNavController
+import com.example.scrollcapturer.previewscreen.PreviewScreen
+import com.example.scrollcapturer.previewscreen.PreviewScreenViewModel
 import com.example.scrollcapturer.resultScreen.ResultScreen
 import com.example.scrollcapturer.screenshotListScreen.ScreenshotListScreen
 import com.example.scrollcapturer.screenshotListScreen.ScreenshotListSharedViewModel
 import com.example.scrollcapturer.services.ScreenCaptureService
-import com.example.scrollcapturer.previewscreen.PreviewScreenViewModel
-import com.example.scrollcapturer.previewscreen.PreviewScreen
+import com.example.scrollcapturer.ui.theme.ScrollCapturerTheme
 import dagger.hilt.android.AndroidEntryPoint
 import org.opencv.android.OpenCVLoader
 import javax.inject.Inject
@@ -43,6 +45,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var imageCombiner: ImageCombiner
+
+    private lateinit var navController: NavHostController
+    private lateinit var previewScreenViewModel: PreviewScreenViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,6 +80,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ScrollCapturerTheme {
+                navController = rememberNavController()
+                previewScreenViewModel = hiltViewModel()
+
                 Column(
                     modifier = Modifier
                         .background(color = Color.White)
@@ -82,9 +90,7 @@ class MainActivity : ComponentActivity() {
                         .padding(WindowInsets.navigationBars.asPaddingValues())
                 )
                 {
-                    val navController = rememberNavController()
                     val sharedViewModel: ScreenshotListSharedViewModel = hiltViewModel()
-                    val previewScreenViewModel: PreviewScreenViewModel = hiltViewModel()
 
                     // set statusBarHeightPx, navigationBarHeightPx, screenHeight for imageCombiner
                     val statusBarPadding = WindowInsets.statusBars.asPaddingValues()
@@ -116,5 +122,11 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        navController.navigate("result_screen")
+        Log.d("MainActivity", "navigated to result_screen")
     }
 }

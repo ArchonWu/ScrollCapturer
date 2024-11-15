@@ -14,12 +14,23 @@ import android.media.ImageReader
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.IBinder
-import android.os.Looper
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.app.NotificationCompat
 import com.example.scrollcapturer.ImageCombiner
+import com.example.scrollcapturer.MainActivity
 import com.example.scrollcapturer.R
+import com.example.scrollcapturer.utils.ImageUtils
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import org.opencv.core.Mat
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
@@ -28,13 +39,14 @@ import javax.inject.Inject
 class ScreenCaptureService : Service() {
 
     private val tag = "ScreenCaptureService"
+
     private var imageReader: ImageReader? = null
     private var virtualDisplay: VirtualDisplay? = null
     private var mediaProjection: MediaProjection? = null
     private var appDirectory: File? = null
 
     private var isScrolling = false
-    private val handler = android.os.Handler(Looper.getMainLooper())
+    private var isCollapsing = true
 
     private var screenWidth = 0
     private var screenHeight = 0
@@ -43,6 +55,9 @@ class ScreenCaptureService : Service() {
 
     @Inject
     lateinit var imageCombiner: ImageCombiner
+
+    private var imageBitmapList: List<Bitmap> by mutableStateOf(emptyList())
+    private var resultImageBitmap by mutableStateOf(ImageBitmap(1, 1))
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -53,10 +68,10 @@ class ScreenCaptureService : Service() {
         when (intent?.action) {
             Actions.START_PROJECTION.toString() -> startProjection(intent)      // start service
             Actions.STOP_PROJECTION.toString() -> stopProjection()              // stop service
-            Actions.START_AUTO_CAPTURE.toString() -> startAutoScrollAndCapture()    // start capture
-            Actions.CAPTURE_SCREEN.toString() -> captureCurrentScreen()             // capture screen once
-            Actions.STOP_CONTINUOUS_SCROLL.toString() -> isScrolling =
-                false    //completeCapture()          // stop auto-scrolling and capturing
+            Actions.START_AUTO_CAPTURE.toString() ->
+                CoroutineScope(Dispatchers.IO).launch { executeAutoCaptureAndCombine() }    // start capture
+            Actions.CAPTURE_SCREEN.toString() -> captureCurrentScreenToStorage()       // capture screen once
+            Actions.STOP_CONTINUOUS_SCROLL.toString() -> if (!isCollapsing) completeCapture()      // stop auto-scrolling and capturing
         }
         return super.onStartCommand(intent, flags, startId)
     }
@@ -85,6 +100,62 @@ class ScreenCaptureService : Service() {
         Log.d(tag, "onDestroy")
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopProjection()
+    }
+
+    private suspend fun executeAutoCaptureAndCombine() {
+        collapseStatusBar()
+        delay(1000L)
+
+        isScrolling = true
+        isCollapsing = false
+
+        while (isScrolling) {
+            val screenshotBitmap = captureScreenshot()
+//            imageCombiner.processServiceCapturedImage(screenshotBitmap)     // TODO: streamlined method
+            if (screenshotBitmap != null) {
+                imageCombiner.addScreenshot(screenshotBitmap)
+            } else {
+                Log.e(tag, "screenshotBitmap is null!")
+            }
+            delay(1000L)
+
+            if (isScrolling) {      // check if isScrolling has changed (completeCapture() is called)
+                scrollDownHalfPage()
+                delay(1500L)
+            }
+        }
+    }
+
+    private fun completeCapture() {
+        Log.d(tag, "completeCapture()")
+        isScrolling = false
+        isCollapsing = true
+
+        val resultImageBitmap = imageCombiner.stitchAllImages()
+
+        // intent to open the app
+        val openResultIntent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        startActivity(openResultIntent)
+    }
+
+    private fun stitchAllImages(imageMats: List<Mat>): ImageBitmap {
+
+        Log.d(tag, "stitchAllImages(), ${imageMats.size}")
+
+        CoroutineScope(Dispatchers.IO).launch {
+
+            // iteratively stitches two images in the list: do feature matching, and images stitching
+            var resultStitchedImage = imageMats[0]
+            for (i in 1 until imageMats.size) {
+                resultStitchedImage = imageCombiner.stitchImage(resultStitchedImage, imageMats[i])
+            }
+
+            resultImageBitmap = ImageUtils.convertMatToBitmap(resultStitchedImage).asImageBitmap()
+
+        }
+        return resultImageBitmap
     }
 
     private fun captureScreenshot(): Bitmap? {
@@ -120,8 +191,8 @@ class ScreenCaptureService : Service() {
         return bitmap
     }
 
-    private fun captureCurrentScreen() {
-        Log.d(tag, "captureCurrentScreen()")
+    private fun captureCurrentScreenToStorage() {
+        Log.d(tag, "captureCurrentScreenToStorage()")
 
         var fos: FileOutputStream? = null
         var bitmap: Bitmap? = null
@@ -163,60 +234,21 @@ class ScreenCaptureService : Service() {
         }
     }
 
-    private fun startAutoScrollAndCapture() {
-        Log.d(tag, "startAutoScrollAndCapture()")
+    private fun collapseStatusBar() {
+        isCollapsing = true
 
         // intent for accessibility service to collapse status bar
         val collapseStatusBarIntent = Intent(this, GestureScrollService::class.java)
         collapseStatusBarIntent.action = GestureScrollService.Actions.COLLAPSE_STATUS_BAR.toString()
         startService(collapseStatusBarIntent)
-
-        handler.postDelayed({
-            isScrolling = true
-            captureCurrentScreen() // capture the first screen before scrolling
-
-            // TODO: pass the new captured screen to combine
-
-
-            // repeatedly capture and scrolling down while combining them
-            continuousScrollDownPage()
-        }, 1750)
-
-//        handler.postDelayed({
-//            captureCurrentScreen()
-//        }, 1000)
-//
-//        handler.postDelayed({
-//            isScrolling = true
-//            continuousScrollDownPage()
-//        }, 1750)
     }
 
-    private fun completeCapture() {
-        Log.d(tag, "completeCapture()")
-        isScrolling = false
-//        handler.removeCallbacksAndMessages(null)    // remove scheduled tasks in handler (e.g. more captureCurrentScreen() and scroll())
-
-        // TODO: open the app and navigate to the result screen with the combined image
-
-    }
-
-    private fun continuousScrollDownPage() {
-        if (!isScrolling) return
-
+    private fun scrollDownHalfPage() {
         // intent for accessibility service to scroll down by half page
         val scrollDownByHalfPageIntent = Intent(this, GestureScrollService::class.java)
         scrollDownByHalfPageIntent.action =
             GestureScrollService.Actions.SCROLL_DOWN_HALF_PAGE.toString()
         startService(scrollDownByHalfPageIntent)
-
-        handler.postDelayed({
-            continuousScrollDownPage()
-            captureCurrentScreen()
-
-            //  TODO: pass the new captured screen to combine
-
-        }, 1750)
     }
 
     private fun startProjection(intent: Intent) {

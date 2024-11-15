@@ -5,7 +5,13 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.asImageBitmap
 import com.example.scrollcapturer.models.SiftMatchResult
+import com.example.scrollcapturer.utils.ImageUtils
+import org.opencv.android.Utils
 import org.opencv.calib3d.Calib3d
 import org.opencv.calib3d.Calib3d.RANSAC
 import org.opencv.core.Core
@@ -26,7 +32,42 @@ class ImageCombiner {
     private var navigationBarHeightPx by mutableIntStateOf(0)
     private var screenHeight by mutableIntStateOf(0)
 
-    private val capturedImages = mutableListOf<Bitmap>()
+    private var serviceCapturedImages = mutableListOf<Bitmap>()
+    private var serviceCombineResult: ImageBitmap? = null
+    var resultImageBitmap: ImageBitmap = ImageBitmap(100, 100).apply {
+        val canvas = Canvas(this)
+        val paint = Paint()
+        canvas.drawRect(0f, 0f, 100f, 100f, paint)
+    }
+
+    private val tag = "ImageCombiner"
+
+    fun processServiceCapturedImage(screenshotBitmap: Bitmap?) {
+        screenshotBitmap?.let {
+            serviceCapturedImages.add(it) // only add if non-null
+        }
+    }
+
+    fun stitchAllImages(): ImageBitmap {
+        Log.d(tag, "stitchAllServiceCapturedImages(), ${serviceCapturedImages.size}")
+
+        val serviceCapturedImageMats = ImageUtils.convertBitmapToMat(serviceCapturedImages)
+        serviceCombineResult =
+            ImageUtils.convertMatToBitmap(serviceCapturedImageMats[0]).asImageBitmap()
+
+        // iteratively stitches two images in the list: do feature matching, and images stitching
+        var resultStitchedImage = serviceCapturedImageMats[0]
+        for (i in 1 until serviceCapturedImageMats.size) {
+            resultStitchedImage = stitchImage(resultStitchedImage, serviceCapturedImageMats[i])
+        }
+        serviceCombineResult =
+            ImageUtils.convertMatToBitmap(resultStitchedImage).asImageBitmap()
+
+        clearServiceCapturedImages()
+        Log.d(tag, "stitchAllServiceCapturedImages(): finished")
+        resultImageBitmap = serviceCombineResult as ImageBitmap
+        return resultImageBitmap
+    }
 
     // perform the stitching (combining two images based on their good feature matches)
     fun stitchImage(imageMat1: Mat, imageMat2: Mat): Mat {
@@ -173,4 +214,22 @@ class ImageCombiner {
         this.navigationBarHeightPx = navigationBarHeight
         this.screenHeight = screenHeight
     }
+
+    fun addScreenshot(screenshotBitmap: Bitmap) {
+        serviceCapturedImages += screenshotBitmap
+    }
+
+    private fun clearServiceCapturedImages() {
+        serviceCapturedImages = mutableListOf<Bitmap>()
+    }
+
+    fun addScreenshotsFromMats(imageMats: List<Mat>) {
+        val bitmaps = imageMats.map { mat ->
+            val bitmap = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888)
+            Utils.matToBitmap(mat, bitmap)
+            bitmap
+        }
+        serviceCapturedImages += bitmaps
+    }
+
 }
