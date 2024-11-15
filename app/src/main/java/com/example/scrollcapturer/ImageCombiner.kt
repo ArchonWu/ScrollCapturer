@@ -218,7 +218,7 @@ class ImageCombiner {
         serviceCapturedImages += screenshotBitmap
     }
 
-    private fun clearServiceCapturedImages() {
+    fun clearServiceCapturedImages() {
         serviceCapturedImages = mutableListOf<Bitmap>()
     }
 

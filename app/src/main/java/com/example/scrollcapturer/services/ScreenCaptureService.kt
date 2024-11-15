@@ -98,6 +98,7 @@ class ScreenCaptureService : Service() {
 
         isScrolling = true
         isCollapsing = false
+        imageCombiner.clearServiceCapturedImages()
 
         while (isScrolling) {
             val screenshotBitmap = captureScreenshot()
@@ -260,6 +261,8 @@ class ScreenCaptureService : Service() {
             override fun onStop() {
                 super.onStop()
                 stopProjection()
+                isScrolling = false
+                isCollapsing = true
             }
         }, null)
 
@@ -277,6 +280,10 @@ class ScreenCaptureService : Service() {
 
     private fun stopProjection() {
         Log.d(tag, "stopProjection()")
+
+        isScrolling = false
+        isCollapsing = true
+
         virtualDisplay?.release()
         imageReader?.close()
 

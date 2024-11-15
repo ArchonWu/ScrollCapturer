@@ -12,6 +12,8 @@ class GestureScrollService : AccessibilityService() {
     private var screenHeight: Int = 0
     private var screenWidth: Int = 0
 
+    private val tag = "GestureScrollService"
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
         when (intent?.action) {
@@ -19,13 +21,13 @@ class GestureScrollService : AccessibilityService() {
             Actions.SCROLL_DOWN_HALF_PAGE.toString() -> scrollDownByHalfPage()
         }
 
-        return START_STICKY
+        return START_NOT_STICKY
     }
 
     override fun onServiceConnected() {
         super.onServiceConnected()
 
-        Log.d("AS_onServiceConnected()", "Accessibility Service connected")
+        Log.d(tag, "Accessibility Service connected")
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
@@ -33,13 +35,8 @@ class GestureScrollService : AccessibilityService() {
         if (event == null) return
 
         when (event.eventType) {
-
             AccessibilityEvent.TYPE_VIEW_CLICKED -> stopAutoScroll()
-
             else -> {}
-//                Log.d(                "AS_AS",
-//                "Unhandled event: ${event.eventType}, ${event.action}, ${event.text}, $event."
-//            )
         }
     }
 
@@ -50,11 +47,18 @@ class GestureScrollService : AccessibilityService() {
         screenHeight = displayMetrics.heightPixels
         screenWidth = displayMetrics.widthPixels
 
-        Log.d("AS_onCreate()", "screenHeight: $screenHeight, screenWidth: $screenWidth")
+        Log.d(tag, "onCreate()")
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        stopSelf()
+        Log.d(tag, "onTaskRemoved(), stopping service")
     }
 
     override fun onInterrupt() {
-
+        Log.d(tag, "onInterrupt()")
+        stopAutoScroll()
     }
 
     private fun stopAutoScroll() {
@@ -64,7 +68,7 @@ class GestureScrollService : AccessibilityService() {
         stopContinuousScroll.action = ScreenCaptureService.Actions.STOP_CONTINUOUS_SCROLL.toString()
         startService(stopContinuousScroll)
 
-        Log.d("AS", "stopAutoScroll()")
+        Log.d(tag, "stopAutoScroll()")
     }
 
     // scroll down by half the page (half of screen height)
@@ -79,7 +83,7 @@ class GestureScrollService : AccessibilityService() {
         val gestureDescription = GestureDescription.Builder().addStroke(strokeDescription).build()
         dispatchGesture(gestureDescription, null, null)
 
-        Log.d("AS", "scrollDownByHalfPage()")
+        Log.d(tag, "scrollDownByHalfPage()")
     }
 
     // assumes the status bar is opened,
@@ -95,7 +99,7 @@ class GestureScrollService : AccessibilityService() {
         val gestureDescription = GestureDescription.Builder().addStroke(strokeDescription).build()
         dispatchGesture(gestureDescription, null, null)
 
-        Log.d("AS", "collapseStatusBar()")
+        Log.d(tag, "collapseStatusBar()")
     }
 
     enum class Actions {
