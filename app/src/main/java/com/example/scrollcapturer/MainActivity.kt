@@ -113,12 +113,15 @@ class MainActivity : ComponentActivity() {
                             ScreenshotListScreen(navController, sharedViewModel)
                         }
                         composable("stitch_screen") {
-                            PreviewScreen(navController, sharedViewModel, previewScreenViewModel)
+                            PreviewScreen(
+                                navController,
+                                sharedViewModel,
+                                previewScreenViewModel
+                            )
                         }
                         composable("result_screen") {
                             ResultScreen(
                                 navController,
-                                previewScreenViewModel,
                                 imageCombiner = imageCombiner
                             )
                         }

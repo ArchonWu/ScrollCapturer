@@ -23,13 +23,12 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.scrollcapturer.screenshotListScreen.ScreenshotListSharedViewModel
 import com.example.scrollcapturer.ui.components.MenuBar
 import com.example.scrollcapturer.ui.components.StyledButton
-import com.example.scrollcapturer.utils.ImageUtils
 
 @Composable
 fun PreviewScreen(
     navController: NavController,
     sharedViewModel: ScreenshotListSharedViewModel,
-    previewScreenViewModel: PreviewScreenViewModel
+    previewScreenViewModel: PreviewScreenViewModel,
 ) {
 
     val context = LocalContext.current
@@ -74,7 +73,7 @@ fun PreviewScreen(
         MenuBar(
             buttons = listOf(
                 { BackButton(navController) },
-                { StartStitchingButton(navController, previewScreenViewModel, contentResolver, imageUriList) })
+                { StartStitchingButton(navController, contentResolver, imageUriList, previewScreenViewModel) })
         )
     }
 }
@@ -90,13 +89,12 @@ fun BackButton(navController: NavController) {
 @Composable
 fun StartStitchingButton(
     navController: NavController,
-    previewScreenViewModel: PreviewScreenViewModel,
     contentResolver: ContentResolver,
-    imageUriList: List<Uri>
+    imageUriList: List<Uri>,
+    previewScreenViewModel: PreviewScreenViewModel
 ) {
     StyledButton(text = "COMBINE", onClick = {
-        val imageMatList = ImageUtils.convertUrisToMats(imageUriList, contentResolver)
-        previewScreenViewModel.stitchAllImages(imageMatList)
+        previewScreenViewModel.handleCombine(imageUriList, contentResolver)
         navController.navigate("result_screen")
     })
 }

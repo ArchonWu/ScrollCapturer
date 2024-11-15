@@ -15,22 +15,15 @@ import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.IBinder
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.app.NotificationCompat
 import com.example.scrollcapturer.ImageCombiner
 import com.example.scrollcapturer.MainActivity
 import com.example.scrollcapturer.R
-import com.example.scrollcapturer.utils.ImageUtils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.opencv.core.Mat
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
@@ -55,9 +48,6 @@ class ScreenCaptureService : Service() {
 
     @Inject
     lateinit var imageCombiner: ImageCombiner
-
-    private var imageBitmapList: List<Bitmap> by mutableStateOf(emptyList())
-    private var resultImageBitmap by mutableStateOf(ImageBitmap(1, 1))
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -131,31 +121,15 @@ class ScreenCaptureService : Service() {
         isScrolling = false
         isCollapsing = true
 
-        val resultImageBitmap = imageCombiner.stitchAllImages()
-
         // intent to open the app
         val openResultIntent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
         startActivity(openResultIntent)
-    }
-
-    private fun stitchAllImages(imageMats: List<Mat>): ImageBitmap {
-
-        Log.d(tag, "stitchAllImages(), ${imageMats.size}")
 
         CoroutineScope(Dispatchers.IO).launch {
-
-            // iteratively stitches two images in the list: do feature matching, and images stitching
-            var resultStitchedImage = imageMats[0]
-            for (i in 1 until imageMats.size) {
-                resultStitchedImage = imageCombiner.stitchImage(resultStitchedImage, imageMats[i])
-            }
-
-            resultImageBitmap = ImageUtils.convertMatToBitmap(resultStitchedImage).asImageBitmap()
-
+            val resultImageBitmap = imageCombiner.stitchAllImages()
         }
-        return resultImageBitmap
     }
 
     private fun captureScreenshot(): Bitmap? {

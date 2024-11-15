@@ -27,18 +27,15 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.scrollcapturer.ImageCombiner
-import com.example.scrollcapturer.previewscreen.PreviewScreenViewModel
 import com.example.scrollcapturer.ui.components.MenuBar
 import com.example.scrollcapturer.ui.components.StyledButton
 
 @Composable
 fun ResultScreen(
     navController: NavController,
-    previewScreenViewModel: PreviewScreenViewModel,
     resultScreenViewModel: ResultScreenViewModel = hiltViewModel(),
     imageCombiner: ImageCombiner
 ) {
-//    val resultImageBitmap = previewScreenViewModel.resultImageBitmap      // TODO: change this logic to use imageCombiner's
     val resultImageBitmap = imageCombiner.resultImageBitmap
     Log.d("result_screen", "$resultImageBitmap")
 

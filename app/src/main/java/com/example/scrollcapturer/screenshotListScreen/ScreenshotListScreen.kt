@@ -17,10 +17,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -35,13 +32,13 @@ import com.example.scrollcapturer.ui.components.StyledButton
 @Composable
 fun ScreenshotListScreen(
     navController: NavController,
-    sharedViewModel: ScreenshotListSharedViewModel
+    screenshotListSharedViewModel: ScreenshotListSharedViewModel
 ) {
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents(),
         onResult = { uris: List<Uri> ->
-            sharedViewModel.addImageUris(uris)
+            screenshotListSharedViewModel.addImageUris(uris)
         }
     )
 
@@ -50,7 +47,7 @@ fun ScreenshotListScreen(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        ScreenshotGrid(imageUriList = sharedViewModel.selectedImagesUri)
+        ScreenshotGrid(imageUriList = screenshotListSharedViewModel.selectedImagesUri)
     }
 
     // Bottom MenuBar
@@ -60,9 +57,9 @@ fun ScreenshotListScreen(
     ) {
         MenuBar(
             buttons = listOf(
-                { AddPictureButton(imagePickerLauncher, sharedViewModel) },
+                { AddPictureButton(imagePickerLauncher) },
                 { AutoModeButton() },
-                { ResetPictureButton() },
+                { ResetPictureButton(screenshotListSharedViewModel) },
                 { NextButton(navController) },
             )
         )
@@ -97,40 +94,16 @@ fun ScreenshotSlot(uri: Uri) {
 
 @Composable
 fun AddPictureButton(
-    imagePickerLauncher: ManagedActivityResultLauncher<String, List<Uri>>,
-    sharedViewModel: ScreenshotListSharedViewModel
+    imagePickerLauncher: ManagedActivityResultLauncher<String, List<Uri>>
 ) {
-
-    var isExpanded by remember {
-        mutableStateOf(false)
-    }
-
     StyledButton(
         text = "ADD",
         onClick = {
-//            isExpanded = true
             imagePickerLauncher.launch("image/*")
 
         }
 
     )
-
-//    Column(
-//        horizontalAlignment = Alignment.CenterHorizontally,
-//        verticalArrangement = Arrangement.Center
-//    ) {
-//        if (isExpanded) {
-//            StyledButton(
-//                text = "GALLERY",
-//                onClick = { imagePickerLauncher.launch("image/*") }
-//            )
-//
-//            StyledButton(
-//                text = "AUTO",
-//                onClick = {}
-//            )
-//        }
-//    }
 }
 
 @Composable
@@ -164,10 +137,10 @@ fun AutoModeButton() {
 }
 
 @Composable
-fun ResetPictureButton() {
+fun ResetPictureButton(screenshotListSharedViewModel: ScreenshotListSharedViewModel) {
     StyledButton(
         text = "RESET",
-        onClick = {}
+        onClick = { screenshotListSharedViewModel.resetImageUris() }
     )
 }
 
