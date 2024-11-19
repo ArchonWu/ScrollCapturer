@@ -16,6 +16,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -25,10 +29,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.scrollcapturer.R
 import com.example.scrollcapturer.services.ScreenCaptureService
 import com.example.scrollcapturer.ui.components.MenuBar
 import com.example.scrollcapturer.ui.components.StyledButton
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenshotListScreen(
     navController: NavController,
@@ -42,12 +48,33 @@ fun ScreenshotListScreen(
         }
     )
 
-    Box(
-        contentAlignment = Alignment.TopEnd,
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        ScreenshotGrid(imageUriList = screenshotListSharedViewModel.selectedImagesUri)
+    TopAppBar(
+        title = {
+            Text(text = "Screenshots")
+        }
+    )
+
+    if (screenshotListSharedViewModel.selectedImagesUri.isEmpty()) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            Text(
+                text = "Add some photos to start combining!",
+                color = MaterialTheme.colorScheme.onPrimary
+            )
+            // TODO: add a stitching icon
+        }
+    } else {
+
+        Box(
+            contentAlignment = Alignment.TopCenter,
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            ScreenshotGrid(imageUriList = screenshotListSharedViewModel.selectedImagesUri)
+        }
     }
 
     // Bottom MenuBar
@@ -58,9 +85,9 @@ fun ScreenshotListScreen(
         MenuBar(
             buttons = listOf(
                 { AddPictureButton(imagePickerLauncher) },
-                { AutoModeButton() },
                 { ResetPictureButton(screenshotListSharedViewModel) },
-                { NextButton(navController) },
+                { AutoModeButton() },
+                { NextButton(navController) }
             )
         )
     }
@@ -97,12 +124,11 @@ fun AddPictureButton(
     imagePickerLauncher: ManagedActivityResultLauncher<String, List<Uri>>
 ) {
     StyledButton(
-        text = "ADD",
+        text = "Add",
         onClick = {
             imagePickerLauncher.launch("image/*")
-
-        }
-
+        },
+        resID = R.drawable.baseline_add_box_24
     )
 }
 
@@ -124,30 +150,34 @@ fun AutoModeButton() {
             startServiceIntent.putExtra("data", result.data)
             context.startService(startServiceIntent)
         } else {    // no permission from user
-            Toast.makeText(context, "Permission required for Auto mode", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Permission required for Auto mode", Toast.LENGTH_SHORT)
+                .show()
         }
     }
 
     StyledButton(
-        text = "AUTO",
+        text = "Auto",
         onClick = {
             startMediaProjectionLauncher.launch(screenCaptureIntent)
-        }
+        },
+        resID = R.drawable.baseline_play_arrow_24
     )
 }
 
 @Composable
 fun ResetPictureButton(screenshotListSharedViewModel: ScreenshotListSharedViewModel) {
     StyledButton(
-        text = "RESET",
-        onClick = { screenshotListSharedViewModel.resetImageUris() }
+        text = "Reset",
+        onClick = { screenshotListSharedViewModel.resetImageUris() },
+        resID = R.drawable.baseline_refresh_24
     )
 }
 
 @Composable
 fun NextButton(navController: NavController) {
     StyledButton(
-        text = "NEXT",
-        onClick = { navController.navigate("stitch_screen") }
+        text = "Next",
+        onClick = { navController.navigate("stitch_screen") },
+        resID = R.drawable.baseline_forward_24
     )
 }

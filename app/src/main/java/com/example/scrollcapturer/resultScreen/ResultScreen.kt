@@ -14,8 +14,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,9 +33,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.scrollcapturer.ImageCombiner
+import com.example.scrollcapturer.R
 import com.example.scrollcapturer.ui.components.MenuBar
 import com.example.scrollcapturer.ui.components.StyledButton
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ResultScreen(
     navController: NavController,
@@ -41,6 +46,12 @@ fun ResultScreen(
 ) {
     val resultImageBitmap = imageCombiner.resultImageBitmap
     Log.d("result_screen", "$resultImageBitmap")
+
+    TopAppBar(
+        title = {
+            Text(text = "Result")
+        }
+    )
 
     ResultImage(resultImageBitmap)
 
@@ -78,11 +89,12 @@ fun ResultImage(resultImageBitmap: ImageBitmap) {
 @Composable
 fun RestartButton(navController: NavController, imageCombiner: ImageCombiner) {
     StyledButton(
-        text = "RESTART",
+        text = "Restart",
         onClick = {
             navController.navigate("screenshot_list_screen")
             imageCombiner.clearServiceCapturedImages()
-        }
+        },
+        resID = R.drawable.baseline_refresh_24
     )
 }
 
@@ -96,8 +108,9 @@ fun SaveButton(resultScreenViewModel: ResultScreenViewModel, resultImageBitmap: 
     }
 
     StyledButton(
-        text = "SAVE",
-        onClick = { showDialog = true }
+        text = "Save",
+        onClick = { showDialog = true },
+        resID = R.drawable.baseline_done_24
     )
 
     // AlertDialog for saving image

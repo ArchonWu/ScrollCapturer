@@ -3,27 +3,28 @@ package com.example.scrollcapturer.previewscreen
 import android.content.ContentResolver
 import android.net.Uri
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.scrollcapturer.R
 import com.example.scrollcapturer.screenshotListScreen.ScreenshotListSharedViewModel
 import com.example.scrollcapturer.ui.components.MenuBar
 import com.example.scrollcapturer.ui.components.StyledButton
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PreviewScreen(
     navController: NavController,
@@ -36,11 +37,20 @@ fun PreviewScreen(
 
     val imageUriList = sharedViewModel.selectedImagesUri
 
+    TopAppBar(
+        title = {
+            Text(text = "Combine Order Preview")
+        }
+    )
+
     Box(
         modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
     ) {
         if (imageUriList.isEmpty()) {
-            Text(text = "NO IMAGES WERE ADDED")
+            Text(
+                text = "No images were added",
+                color = MaterialTheme.colorScheme.onPrimary
+            )
         } else {
             LazyColumn {
                 items(imageUriList) { uri ->
@@ -55,16 +65,6 @@ fun PreviewScreen(
         }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .background(Color.DarkGray),
-        contentAlignment = Alignment.BottomEnd
-    ) {
-
-    }
-
     // Bottom MenuBar
     Box(
         contentAlignment = Alignment.BottomCenter,
@@ -73,7 +73,14 @@ fun PreviewScreen(
         MenuBar(
             buttons = listOf(
                 { BackButton(navController) },
-                { StartStitchingButton(navController, contentResolver, imageUriList, previewScreenViewModel) })
+                {
+                    StartStitchingButton(
+                        navController,
+                        contentResolver,
+                        imageUriList,
+                        previewScreenViewModel
+                    )
+                })
         )
     }
 }
@@ -81,8 +88,9 @@ fun PreviewScreen(
 @Composable
 fun BackButton(navController: NavController) {
     StyledButton(
-        text = "BACK",
-        onClick = { navController.navigate("screenshot_list_screen") }
+        text = "Back",
+        onClick = { navController.navigate("screenshot_list_screen") },
+        resID = R.drawable.baseline_reply_24
     )
 }
 
@@ -93,9 +101,9 @@ fun StartStitchingButton(
     imageUriList: List<Uri>,
     previewScreenViewModel: PreviewScreenViewModel
 ) {
-    StyledButton(text = "COMBINE", onClick = {
+    StyledButton(text = "Combine", onClick = {
         previewScreenViewModel.handleCombine(imageUriList, contentResolver)
         navController.navigate("result_screen")
-    })
+    }, resID = R.drawable.outline_content_cut_24)
 }
 

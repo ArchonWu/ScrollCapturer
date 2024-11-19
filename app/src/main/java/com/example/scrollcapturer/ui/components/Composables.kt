@@ -1,8 +1,10 @@
 package com.example.scrollcapturer.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,30 +13,43 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun StyledButton(text: String, onClick: () -> Unit) {
+fun StyledButton(text: String, onClick: () -> Unit, resID: Int) {
+    // TODO: a place to add icons (above button text)
     Button(
-        shape = RoundedCornerShape(0.dp),   // sharp corner
+        shape = RoundedCornerShape(2.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color.LightGray,
-            contentColor = Color.Black
+            containerColor = MaterialTheme.colorScheme.secondary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
         ),
         contentPadding = PaddingValues(0.dp),
         modifier = Modifier
             .fillMaxWidth(),
         onClick = onClick
     ) {
-        Text(
-            text,
-            maxLines = 1
-        )
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+        ) {
+            Image(
+                painter = painterResource(id = resID),
+                contentDescription = null,
+                modifier = Modifier.padding(bottom = 2.dp)
+            )
+            Text(
+                text,
+                maxLines = 1
+            )
+        }
     }
 }
 
@@ -44,7 +59,7 @@ fun MenuBar(buttons: List<@Composable () -> Unit>) {
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .background(Color.DarkGray)
+            .background(MaterialTheme.colorScheme.secondary)
             .padding(0.dp)
     ) {
         for (button in buttons) {
@@ -52,8 +67,8 @@ fun MenuBar(buttons: List<@Composable () -> Unit>) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)             // each box has the same weight, so equal width for each button
-                    .wrapContentHeight()
-                    .border(1.dp, color = Color.Gray),
+                    .wrapContentHeight(),
+//                    .border(1.dp, color = Color.Gray),
                 contentAlignment = Alignment.Center
             ) {
                 button()
