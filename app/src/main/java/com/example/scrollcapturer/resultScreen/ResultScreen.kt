@@ -1,6 +1,5 @@
 package com.example.scrollcapturer.resultScreen
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,11 +13,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,34 +33,29 @@ import com.example.scrollcapturer.R
 import com.example.scrollcapturer.ui.components.MenuBar
 import com.example.scrollcapturer.ui.components.StyledButton
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ResultScreen(
     navController: NavController,
     resultScreenViewModel: ResultScreenViewModel = hiltViewModel(),
-    imageCombiner: ImageCombiner
+    imageCombiner: ImageCombiner,
+    modifier: Modifier
 ) {
     val resultImageBitmap = imageCombiner.resultImageBitmap
-    Log.d("result_screen", "$resultImageBitmap")
 
-    TopAppBar(
-        title = {
-            Text(text = "Result")
+    Box(modifier = modifier) {
+        ResultImage(resultImageBitmap)
+
+        // Bottom MenuBar
+        Box(
+            contentAlignment = Alignment.BottomCenter,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            MenuBar(
+                buttons = listOf(
+                    { RestartButton(navController, imageCombiner) },
+                    { SaveButton(resultScreenViewModel, resultImageBitmap) })
+            )
         }
-    )
-
-    ResultImage(resultImageBitmap)
-
-    // Bottom MenuBar
-    Box(
-        contentAlignment = Alignment.BottomCenter,
-        modifier = Modifier.fillMaxSize()
-    ) {
-        MenuBar(
-            buttons = listOf(
-                { RestartButton(navController, imageCombiner) },
-                { SaveButton(resultScreenViewModel, resultImageBitmap) })
-        )
     }
 }
 
@@ -171,7 +162,7 @@ fun DialogTextField(
                         contentColor = Color.Black
                     )
                 ) {
-                    Text("BACK")
+                    Text("Back")
                 }
 
                 // ConfirmButton
@@ -186,7 +177,7 @@ fun DialogTextField(
                         contentColor = Color.Black
                     )
                 ) {
-                    Text("SAVE")
+                    Text("Save")
                 }
             }
         }

@@ -19,14 +19,13 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun StyledButton(text: String, onClick: () -> Unit, resID: Int) {
-    // TODO: a place to add icons (above button text)
     Button(
         shape = RoundedCornerShape(2.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.secondary,
+            containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary
         ),
-        contentPadding = PaddingValues(0.dp),
+        contentPadding = PaddingValues(4.dp),
         modifier = Modifier
             .fillMaxWidth(),
         onClick = onClick

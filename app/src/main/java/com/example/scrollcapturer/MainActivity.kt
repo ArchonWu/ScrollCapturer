@@ -15,7 +15,11 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -50,6 +54,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var navController: NavHostController
     private lateinit var previewScreenViewModel: PreviewScreenViewModel
 
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -79,20 +84,39 @@ class MainActivity : ComponentActivity() {
                             startDestination = "screenshot_list_screen"
                         ) {
                             composable("screenshot_list_screen") {
-                                ScreenshotListScreen(navController, sharedViewModel)
+                                Scaffold(
+                                    topBar = { TopAppBar(title = { Text("Screenshot List") }) },
+                                    content = { paddingValues ->
+                                        ScreenshotListScreen(
+                                            navController,
+                                            sharedViewModel,
+                                            modifier = Modifier.padding(top = paddingValues.calculateTopPadding())
+                                        )
+                                    }
+                                )
                             }
                             composable("stitch_screen") {
-                                PreviewScreen(
-                                    navController,
-                                    sharedViewModel,
-                                    previewScreenViewModel
+                                Scaffold(
+                                    topBar = { TopAppBar(title = { Text("Combine Order Preview") }) },
+                                    content = { paddingValues ->
+                                        PreviewScreen(
+                                            navController,
+                                            sharedViewModel,
+                                            previewScreenViewModel,
+                                            modifier = Modifier.padding(top = paddingValues.calculateTopPadding())
+                                        )
+                                    }
                                 )
                             }
                             composable("result_screen") {
-                                ResultScreen(
-                                    navController,
-                                    imageCombiner = imageCombiner
-                                )
+                                Scaffold(topBar = { TopAppBar(title = { Text("Result") }) },
+                                    content = { paddingValues ->
+                                        ResultScreen(
+                                            navController,
+                                            imageCombiner = imageCombiner,
+                                            modifier = Modifier.padding(top = paddingValues.calculateTopPadding())
+                                        )
+                                    })
                             }
                         }
                     }

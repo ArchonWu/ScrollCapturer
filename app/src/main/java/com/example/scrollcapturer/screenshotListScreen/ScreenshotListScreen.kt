@@ -16,10 +16,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -34,11 +32,11 @@ import com.example.scrollcapturer.services.ScreenCaptureService
 import com.example.scrollcapturer.ui.components.MenuBar
 import com.example.scrollcapturer.ui.components.StyledButton
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenshotListScreen(
     navController: NavController,
-    screenshotListSharedViewModel: ScreenshotListSharedViewModel
+    screenshotListSharedViewModel: ScreenshotListSharedViewModel,
+    modifier: Modifier
 ) {
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
@@ -48,50 +46,48 @@ fun ScreenshotListScreen(
         }
     )
 
-    TopAppBar(
-        title = {
-            Text(text = "Screenshots")
-        }
-    )
-
-    if (screenshotListSharedViewModel.selectedImagesUri.isEmpty()) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            Text(
-                text = "Add some photos to start combining!",
-                style = MaterialTheme.typography.displayMedium,
-                color = MaterialTheme.colorScheme.onPrimary
-            )
-            // TODO: add a stitching icon
-        }
-    } else {
-
-        Box(
-            contentAlignment = Alignment.TopCenter,
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            ScreenshotGrid(imageUriList = screenshotListSharedViewModel.selectedImagesUri)
-        }
-    }
-
-    // Bottom MenuBar
     Box(
-        contentAlignment = Alignment.BottomCenter,
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier     // with paddingValues from scaffold
     ) {
-        MenuBar(
-            buttons = listOf(
-                { AddPictureButton(imagePickerLauncher) },
-                { ResetPictureButton(screenshotListSharedViewModel) },
-                { AutoModeButton() },
-                { NextButton(navController) }
+        if (screenshotListSharedViewModel.selectedImagesUri.isEmpty()) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                Text(
+                    text = "Add some photos to start!",
+                    style = MaterialTheme.typography.displayMedium,
+                )
+                // TODO: add a stitching icon
+            }
+        } else {
+
+            Box(
+                contentAlignment = Alignment.TopCenter,
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                ScreenshotGrid(imageUriList = screenshotListSharedViewModel.selectedImagesUri)
+            }
+        }
+
+        // Bottom MenuBar
+        Box(
+            contentAlignment = Alignment.BottomCenter,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            MenuBar(
+                buttons = listOf(
+                    { AddPictureButton(imagePickerLauncher) },
+                    { ResetPictureButton(screenshotListSharedViewModel) },
+                    { AutoModeButton() },
+                    { NextButton(navController) }
+                )
             )
-        )
+        }
     }
+
 }
 
 @Composable
