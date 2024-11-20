@@ -16,8 +16,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.scrollcapturer.R
 import com.example.scrollcapturer.screenshotListScreen.ScreenshotListSharedViewModel
@@ -107,3 +109,26 @@ fun StartStitchingButton(
     }, resID = R.drawable.outline_content_cut_24)
 }
 
+//@Preview
+//@Composable
+//fun PreviewScreenPreview() {
+//    val navController = rememberNavController()
+//
+//    val sharedViewModel = ScreenshotListSharedViewModel()
+//    val previewScreenViewModel = PreviewScreenViewModel(
+//        imageCombiner = imageCombiner
+//    )
+//
+//    // Mock selected images URIs
+//    sharedViewModel.selectedImagesUri = listOf(
+//        Uri.parse("file://path/to/image1.jpg"),
+//        Uri.parse("file://path/to/image2.jpg")
+//    )
+//
+//    // Preview the PreviewScreen composable
+//    PreviewScreen(
+//        navController = navController,
+//        sharedViewModel = sharedViewModel,
+//        previewScreenViewModel = previewScreenViewModel
+//    )
+//}

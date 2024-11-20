@@ -62,6 +62,7 @@ fun ScreenshotListScreen(
         ) {
             Text(
                 text = "Add some photos to start combining!",
+                style = MaterialTheme.typography.displayMedium,
                 color = MaterialTheme.colorScheme.onPrimary
             )
             // TODO: add a stitching icon

@@ -17,10 +17,14 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -52,30 +56,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        ActivityCompat.requestPermissions(
-            this,
-            arrayOf(
-                android.Manifest.permission.POST_NOTIFICATIONS
-            ),
-            0
-        )
-
-        // Foreground Service
-        val channel = NotificationChannel(
-            "AUTO_SCROLL_CAPTURE_CHANNEL",
-            "AutoScrollCapture Notifications",
-            NotificationManager.IMPORTANCE_HIGH
-        )
-        val notificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.createNotificationChannel(channel)
-
-        // OpenCV for feature matching
-        if (OpenCVLoader.initLocal()) {
-            Log.d("OpenCV", "OpenCV successfully loaded.")
-        } else {
-            Log.d("OpenCV", "OpenCV initialization failed.")
-        }.toInt()
+        requestPermissions(this)
+        initializeNotificationChannel(this)
+        initializeOpenCV()
 
         enableEdgeToEdge()
         setContent {
@@ -83,6 +66,9 @@ class MainActivity : ComponentActivity() {
                 navController = rememberNavController()
                 previewScreenViewModel = hiltViewModel()
 
+                Surface() {
+                    ScrollCapturerApp()
+                }
                 Column(
                     modifier = Modifier
                         .background(color = MaterialTheme.colorScheme.primary)
@@ -92,18 +78,7 @@ class MainActivity : ComponentActivity() {
                 {
                     val sharedViewModel: ScreenshotListSharedViewModel = hiltViewModel()
 
-                    // set statusBarHeightPx, navigationBarHeightPx, screenHeight for imageCombiner
-                    val statusBarPadding = WindowInsets.statusBars.asPaddingValues()
-                    val navigationBarPadding = WindowInsets.navigationBars.asPaddingValues()
-                    val density = LocalDensity.current
-                    val statusBarHeightPx =
-                        with(density) { statusBarPadding.calculateTopPadding().toPx().toInt() }
-                    val navigationBarHeightPx = with(density) {
-                        navigationBarPadding.calculateBottomPadding().toPx().toInt()
-                    }
-                    val displayMetrics = LocalContext.current.resources.displayMetrics
-                    val screenHeight = displayMetrics.heightPixels
-                    imageCombiner.setInsets(statusBarHeightPx, navigationBarHeightPx, screenHeight)
+                    InitializeImageCombinerWindowInsets(imageCombiner)
 
                     NavHost(
                         navController = navController,
@@ -131,9 +106,72 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         navController.navigate("result_screen")
         Log.d("MainActivity", "navigated to result_screen")
     }
+}
+
+fun requestPermissions(activity: MainActivity) {
+    ActivityCompat.requestPermissions(
+        activity,
+        arrayOf(
+            android.Manifest.permission.POST_NOTIFICATIONS
+        ),
+        0
+    )
+}
+
+fun initializeNotificationChannel(context: Context) {
+    // Foreground Service
+    val channel = NotificationChannel(
+        "AUTO_SCROLL_CAPTURE_CHANNEL",
+        "AutoScrollCapture Notifications",
+        NotificationManager.IMPORTANCE_HIGH
+    )
+    val notificationManager =
+        getSystemService(context, NotificationManager::class.java)
+    notificationManager?.createNotificationChannel(channel)
+}
+
+fun initializeOpenCV() {
+    // OpenCV for feature matching
+    if (OpenCVLoader.initLocal()) {
+        Log.d("OpenCV", "OpenCV successfully loaded.")
+    } else {
+        Log.d("OpenCV", "OpenCV initialization failed.")
+    }.toInt()
+}
+
+@Composable
+fun InitializeImageCombinerWindowInsets(imageCombiner: ImageCombiner) {
+    // set statusBarHeightPx, navigationBarHeightPx, screenHeight for imageCombiner
+    val statusBarPadding = WindowInsets.statusBars.asPaddingValues()
+    val navigationBarPadding = WindowInsets.navigationBars.asPaddingValues()
+    val density = LocalDensity.current
+    val statusBarHeightPx =
+        with(density) { statusBarPadding.calculateTopPadding().toPx().toInt() }
+    val navigationBarHeightPx = with(density) {
+        navigationBarPadding.calculateBottomPadding().toPx().toInt()
+    }
+    val displayMetrics = LocalContext.current.resources.displayMetrics
+    val screenHeight = displayMetrics.heightPixels
+    imageCombiner.setInsets(
+        statusBarHeightPx,
+        navigationBarHeightPx,
+        screenHeight
+    )
+}
+
+@Composable
+fun ScrollCapturerApp() {
+
+}
+
+@Preview
+@Composable
+fun ScrollCapturerAppPreview() {
+
 }
