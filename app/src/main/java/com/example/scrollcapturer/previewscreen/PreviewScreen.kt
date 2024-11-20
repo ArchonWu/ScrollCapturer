@@ -8,6 +8,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ContentCut
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,7 +20,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.scrollcapturer.R
 import com.example.scrollcapturer.screenshotListScreen.ScreenshotListSharedViewModel
 import com.example.scrollcapturer.ui.components.MenuBar
 import com.example.scrollcapturer.ui.components.StyledButton
@@ -87,7 +89,7 @@ fun BackButton(navController: NavController) {
     StyledButton(
         text = "Back",
         onClick = { navController.navigate("screenshot_list_screen") },
-        resID = R.drawable.baseline_reply_24
+        imageVector = Icons.AutoMirrored.Filled.ArrowBack
     )
 }
 
@@ -98,8 +100,12 @@ fun StartStitchingButton(
     imageUriList: List<Uri>,
     previewScreenViewModel: PreviewScreenViewModel
 ) {
-    StyledButton(text = "Combine", onClick = {
-        previewScreenViewModel.handleCombine(imageUriList, contentResolver)
-        navController.navigate("result_screen")
-    }, resID = R.drawable.outline_content_cut_24)
+    StyledButton(
+        text = "Combine",
+        onClick = {
+            previewScreenViewModel.handleCombine(imageUriList, contentResolver)
+            navController.navigate("result_screen")
+        },
+        imageVector = Icons.Filled.ContentCut
+    )
 }

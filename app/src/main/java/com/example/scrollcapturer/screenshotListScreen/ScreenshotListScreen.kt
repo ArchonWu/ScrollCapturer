@@ -16,6 +16,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Forward
+import androidx.compose.material.icons.filled.AddToPhotos
+import androidx.compose.material.icons.filled.CastConnected
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,7 +32,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.scrollcapturer.R
 import com.example.scrollcapturer.services.ScreenCaptureService
 import com.example.scrollcapturer.ui.components.MenuBar
 import com.example.scrollcapturer.ui.components.StyledButton
@@ -125,7 +129,7 @@ fun AddPictureButton(
         onClick = {
             imagePickerLauncher.launch("image/*")
         },
-        resID = R.drawable.baseline_add_box_24
+        imageVector = Icons.Filled.AddToPhotos
     )
 }
 
@@ -157,7 +161,7 @@ fun AutoModeButton() {
         onClick = {
             startMediaProjectionLauncher.launch(screenCaptureIntent)
         },
-        resID = R.drawable.baseline_play_arrow_24
+        imageVector = Icons.Filled.CastConnected
     )
 }
 
@@ -166,7 +170,7 @@ fun ResetPictureButton(screenshotListSharedViewModel: ScreenshotListSharedViewMo
     StyledButton(
         text = "Reset",
         onClick = { screenshotListSharedViewModel.resetImageUris() },
-        resID = R.drawable.baseline_refresh_24
+        imageVector = Icons.Filled.Refresh
     )
 }
 
@@ -175,6 +179,6 @@ fun NextButton(navController: NavController) {
     StyledButton(
         text = "Next",
         onClick = { navController.navigate("stitch_screen") },
-        resID = R.drawable.baseline_forward_24
+        imageVector = Icons.AutoMirrored.Filled.Forward
     )
 }

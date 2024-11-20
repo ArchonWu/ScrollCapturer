@@ -10,6 +10,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.KeyboardReturn
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -29,7 +32,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.scrollcapturer.ImageCombiner
-import com.example.scrollcapturer.R
 import com.example.scrollcapturer.ui.components.MenuBar
 import com.example.scrollcapturer.ui.components.StyledButton
 
@@ -85,7 +87,7 @@ fun RestartButton(navController: NavController, imageCombiner: ImageCombiner) {
             navController.navigate("screenshot_list_screen")
             imageCombiner.clearServiceCapturedImages()
         },
-        resID = R.drawable.baseline_refresh_24
+        imageVector = Icons.AutoMirrored.Outlined.KeyboardReturn
     )
 }
 
@@ -101,7 +103,7 @@ fun SaveButton(resultScreenViewModel: ResultScreenViewModel, resultImageBitmap: 
     StyledButton(
         text = "Save",
         onClick = { showDialog = true },
-        resID = R.drawable.baseline_done_24
+        imageVector = Icons.Filled.Save
     )
 
     // AlertDialog for saving image
