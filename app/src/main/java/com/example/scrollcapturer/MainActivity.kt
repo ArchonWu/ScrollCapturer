@@ -66,39 +66,37 @@ class MainActivity : ComponentActivity() {
                 navController = rememberNavController()
                 previewScreenViewModel = hiltViewModel()
 
-                Surface() {
-                    ScrollCapturerApp()
-                }
-                Column(
-                    modifier = Modifier
-                        .background(color = MaterialTheme.colorScheme.primary)
-                        .padding(WindowInsets.statusBars.asPaddingValues())
-                        .padding(WindowInsets.navigationBars.asPaddingValues())
-                )
-                {
-                    val sharedViewModel: ScreenshotListSharedViewModel = hiltViewModel()
+                Surface {
+                    Column(
+                        modifier = Modifier
+                            .padding(WindowInsets.statusBars.asPaddingValues())
+                            .padding(WindowInsets.navigationBars.asPaddingValues())
+                    )
+                    {
+                        val sharedViewModel: ScreenshotListSharedViewModel = hiltViewModel()
 
-                    InitializeImageCombinerWindowInsets(imageCombiner)
+                        InitializeImageCombinerWindowInsets(imageCombiner)
 
-                    NavHost(
-                        navController = navController,
-                        startDestination = "screenshot_list_screen"
-                    ) {
-                        composable("screenshot_list_screen") {
-                            ScreenshotListScreen(navController, sharedViewModel)
-                        }
-                        composable("stitch_screen") {
-                            PreviewScreen(
-                                navController,
-                                sharedViewModel,
-                                previewScreenViewModel
-                            )
-                        }
-                        composable("result_screen") {
-                            ResultScreen(
-                                navController,
-                                imageCombiner = imageCombiner
-                            )
+                        NavHost(
+                            navController = navController,
+                            startDestination = "screenshot_list_screen"
+                        ) {
+                            composable("screenshot_list_screen") {
+                                ScreenshotListScreen(navController, sharedViewModel)
+                            }
+                            composable("stitch_screen") {
+                                PreviewScreen(
+                                    navController,
+                                    sharedViewModel,
+                                    previewScreenViewModel
+                                )
+                            }
+                            composable("result_screen") {
+                                ResultScreen(
+                                    navController,
+                                    imageCombiner = imageCombiner
+                                )
+                            }
                         }
                     }
                 }
@@ -163,15 +161,4 @@ fun InitializeImageCombinerWindowInsets(imageCombiner: ImageCombiner) {
         navigationBarHeightPx,
         screenHeight
     )
-}
-
-@Composable
-fun ScrollCapturerApp() {
-
-}
-
-@Preview
-@Composable
-fun ScrollCapturerAppPreview() {
-
 }
