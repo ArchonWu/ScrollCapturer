@@ -20,14 +20,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.scrollcapturer.screenshotListScreen.ScreenshotListSharedViewModel
+import com.example.scrollcapturer.screenshotListScreen.ScreenshotListViewModel
 import com.example.scrollcapturer.ui.components.MenuBar
 import com.example.scrollcapturer.ui.components.StyledButton
 
 @Composable
 fun PreviewScreen(
     navController: NavController,
-    sharedViewModel: ScreenshotListSharedViewModel,
+    sharedViewModel: ScreenshotListViewModel,
     previewScreenViewModel: PreviewScreenViewModel,
     modifier: Modifier,
 ) {

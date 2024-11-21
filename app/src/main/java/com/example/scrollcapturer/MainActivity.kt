@@ -35,7 +35,7 @@ import com.example.scrollcapturer.previewscreen.PreviewScreen
 import com.example.scrollcapturer.previewscreen.PreviewScreenViewModel
 import com.example.scrollcapturer.resultScreen.ResultScreen
 import com.example.scrollcapturer.screenshotListScreen.ScreenshotListScreen
-import com.example.scrollcapturer.screenshotListScreen.ScreenshotListSharedViewModel
+import com.example.scrollcapturer.screenshotListScreen.ScreenshotListViewModel
 import com.example.scrollcapturer.services.ScreenCaptureService
 import com.example.scrollcapturer.ui.theme.ScrollCapturerTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -75,7 +75,7 @@ class MainActivity : ComponentActivity() {
                             .padding(WindowInsets.navigationBars.asPaddingValues())
                     )
                     {
-                        val sharedViewModel: ScreenshotListSharedViewModel = hiltViewModel()
+                        val sharedViewModel: ScreenshotListViewModel = hiltViewModel()
 
                         InitializeImageCombinerWindowInsets(imageCombiner)
 

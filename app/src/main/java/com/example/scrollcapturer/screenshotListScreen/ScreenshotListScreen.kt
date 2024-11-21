@@ -39,21 +39,21 @@ import com.example.scrollcapturer.ui.components.StyledButton
 @Composable
 fun ScreenshotListScreen(
     navController: NavController,
-    screenshotListSharedViewModel: ScreenshotListSharedViewModel,
+    screenshotListViewModel: ScreenshotListViewModel,
     modifier: Modifier
 ) {
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents(),
         onResult = { uris: List<Uri> ->
-            screenshotListSharedViewModel.addImageUris(uris)
+            screenshotListViewModel.addImageUris(uris)
         }
     )
 
     Box(
         modifier = modifier     // with paddingValues from scaffold
     ) {
-        if (screenshotListSharedViewModel.selectedImagesUri.isEmpty()) {
+        if (screenshotListViewModel.selectedImagesUri.isEmpty()) {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
@@ -72,7 +72,7 @@ fun ScreenshotListScreen(
                 modifier = Modifier
                     .fillMaxSize()
             ) {
-                ScreenshotGrid(imageUriList = screenshotListSharedViewModel.selectedImagesUri)
+                ScreenshotGrid(imageUriList = screenshotListViewModel.selectedImagesUri)
             }
         }
 
@@ -84,7 +84,7 @@ fun ScreenshotListScreen(
             MenuBar(
                 buttons = listOf(
                     { AddPictureButton(imagePickerLauncher) },
-                    { ResetPictureButton(screenshotListSharedViewModel) },
+                    { ResetPictureButton(screenshotListViewModel) },
                     { AutoModeButton() },
                     { NextButton(navController) }
                 )
@@ -166,10 +166,10 @@ fun AutoModeButton() {
 }
 
 @Composable
-fun ResetPictureButton(screenshotListSharedViewModel: ScreenshotListSharedViewModel) {
+fun ResetPictureButton(screenshotListViewModel: ScreenshotListViewModel) {
     StyledButton(
         text = "Reset",
-        onClick = { screenshotListSharedViewModel.resetImageUris() },
+        onClick = { screenshotListViewModel.resetImageUris() },
         imageVector = Icons.Filled.Refresh
     )
 }

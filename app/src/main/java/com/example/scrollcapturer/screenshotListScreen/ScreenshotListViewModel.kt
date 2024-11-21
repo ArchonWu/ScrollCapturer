@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ScreenshotListSharedViewModel @Inject constructor() : ViewModel() {
+class ScreenshotListViewModel @Inject constructor() : ViewModel() {
     var selectedImagesUri: List<Uri> by mutableStateOf(emptyList())
         private set
 
