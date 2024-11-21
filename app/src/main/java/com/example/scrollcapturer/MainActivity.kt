@@ -12,6 +12,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
@@ -94,61 +95,26 @@ class MainActivity : ComponentActivity() {
                             startDestination = "screenshot_list_screen"
                         ) {
                             composable("screenshot_list_screen") {
-                                Scaffold(
-                                    topBar = {
-                                        CenterAlignedTopAppBar(
-                                            title = { Text("Long Screenshot Capturer") },
-                                            colors = TopAppBarDefaults.mediumTopAppBarColors(
-                                                containerColor = MaterialTheme.colorScheme.primaryContainer
-                                            ),
-                                            navigationIcon = {
-                                                IconButton(onClick = {}) {
-                                                    Icon(
-                                                        imageVector = Icons.Default.Settings,
-                                                        contentDescription = null
-                                                    )
-                                                }
-                                            }
-                                        )
-                                    },
-                                    content = { paddingValues ->
-                                        ScreenshotListScreen(
-                                            navController,
-                                            sharedViewModel,
-                                            modifier = Modifier.padding(top = paddingValues.calculateTopPadding())
-                                        )
-                                    }
+                                ScreenshotListScreen(
+                                    navController,
+                                    sharedViewModel,
+                                    modifier = Modifier
                                 )
                             }
                             composable("stitch_screen") {
-                                val scrollBehavior =
-                                    TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-                                Scaffold(
-                                    modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-                                    topBar = {
-                                        TopAppBar(
-                                            title = { Text("Combine Order Preview") },
-                                            scrollBehavior = scrollBehavior
-                                        )
-                                    },
-                                ) { paddingValues ->
-                                    PreviewScreen(
-                                        navController,
-                                        sharedViewModel,
-                                        previewScreenViewModel,
-                                        modifier = Modifier.padding(top = paddingValues.calculateTopPadding())
-                                    )
-                                }
+                                PreviewScreen(
+                                    navController,
+                                    sharedViewModel,
+                                    modifier = Modifier,
+                                    previewScreenViewModel = previewScreenViewModel
+                                )
                             }
                             composable("result_screen") {
-                                Scaffold(topBar = { TopAppBar(title = { Text("Result") }) },
-                                    content = { paddingValues ->
-                                        ResultScreen(
-                                            navController,
-                                            imageCombiner = imageCombiner,
-                                            modifier = Modifier.padding(top = paddingValues.calculateTopPadding())
-                                        )
-                                    })
+                                ResultScreen(
+                                    navController,
+                                    imageCombiner = imageCombiner,
+                                    modifier = Modifier
+                                )
                             }
                         }
                     }

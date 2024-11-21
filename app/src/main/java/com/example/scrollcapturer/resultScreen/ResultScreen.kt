@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -16,8 +17,11 @@ import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +39,7 @@ import com.example.scrollcapturer.ImageCombiner
 import com.example.scrollcapturer.ui.components.MenuBar
 import com.example.scrollcapturer.ui.components.StyledButton
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ResultScreen(
     navController: NavController,
@@ -44,19 +49,21 @@ fun ResultScreen(
 ) {
     val resultImageBitmap = imageCombiner.resultImageBitmap
 
-    Box(modifier = modifier) {
-        ResultImage(resultImageBitmap)
+    Scaffold(topBar = { TopAppBar(title = { Text("Result") }) }) { paddingValues ->
+        Box(modifier = modifier.padding(top = paddingValues.calculateTopPadding())) {
+            ResultImage(resultImageBitmap)
 
-        // Bottom MenuBar
-        Box(
-            contentAlignment = Alignment.BottomCenter,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            MenuBar(
-                buttons = listOf(
-                    { RestartButton(navController, imageCombiner) },
-                    { SaveButton(resultScreenViewModel, resultImageBitmap) })
-            )
+            // Bottom MenuBar
+            Box(
+                contentAlignment = Alignment.BottomCenter,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                MenuBar(
+                    buttons = listOf(
+                        { RestartButton(navController, imageCombiner) },
+                        { SaveButton(resultScreenViewModel, resultImageBitmap) })
+                )
+            }
         }
     }
 }

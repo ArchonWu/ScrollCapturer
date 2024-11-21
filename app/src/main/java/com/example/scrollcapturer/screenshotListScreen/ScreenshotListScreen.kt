@@ -12,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -21,8 +22,15 @@ import androidx.compose.material.icons.automirrored.filled.Forward
 import androidx.compose.material.icons.filled.AddToPhotos
 import androidx.compose.material.icons.filled.CastConnected
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -36,6 +44,7 @@ import com.example.scrollcapturer.services.ScreenCaptureService
 import com.example.scrollcapturer.ui.components.MenuBar
 import com.example.scrollcapturer.ui.components.StyledButton
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenshotListScreen(
     navController: NavController,
@@ -50,45 +59,65 @@ fun ScreenshotListScreen(
         }
     )
 
-    Box(
-        modifier = modifier     // with paddingValues from scaffold
-    ) {
-        if (screenshotListViewModel.selectedImagesUri.isEmpty()) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                Text(
-                    text = "Add some photos to start!",
-                    style = MaterialTheme.typography.displayMedium,
-                )
-                // TODO: add a stitching icon
-            }
-        } else {
-
-            Box(
-                contentAlignment = Alignment.TopCenter,
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                ScreenshotGrid(imageUriList = screenshotListViewModel.selectedImagesUri)
-            }
-        }
-
-        // Bottom MenuBar
-        Box(
-            contentAlignment = Alignment.BottomCenter,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            MenuBar(
-                buttons = listOf(
-                    { AddPictureButton(imagePickerLauncher) },
-                    { ResetPictureButton(screenshotListViewModel) },
-                    { AutoModeButton() },
-                    { NextButton(navController) }
-                )
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("Long Screenshot Capturer") },
+                colors = TopAppBarDefaults.mediumTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                ),
+                navigationIcon = {
+                    IconButton(onClick = {}) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = null
+                        )
+                    }
+                }
             )
+        },
+    ) { paddingValues ->
+        Box(
+            modifier = modifier.padding(top = paddingValues.calculateTopPadding())
+        ) {
+            if (screenshotListViewModel.selectedImagesUri.isEmpty()) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    Text(
+                        text = "Add some photos to start!",
+                        style = MaterialTheme.typography.displayMedium,
+                    )
+                    // TODO: add a stitching icon
+                }
+            } else {
+
+                Box(
+                    contentAlignment = Alignment.TopCenter,
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    ScreenshotGrid(imageUriList = screenshotListViewModel.selectedImagesUri)
+                }
+            }
+
+            // Bottom MenuBar
+            Box(
+                contentAlignment = Alignment.BottomCenter,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                MenuBar(
+                    buttons = listOf(
+                        { AddPictureButton(imagePickerLauncher) },
+                        { ResetPictureButton(screenshotListViewModel) },
+                        { AutoModeButton() },
+                        { NextButton(navController) }
+                    )
+                )
+            }
         }
     }
 
