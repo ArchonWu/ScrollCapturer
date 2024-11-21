@@ -20,11 +20,17 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Forward
 import androidx.compose.material.icons.filled.AddToPhotos
+import androidx.compose.material.icons.filled.Cast
 import androidx.compose.material.icons.filled.CastConnected
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.LibraryAdd
+import androidx.compose.material.icons.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -59,11 +65,32 @@ fun ScreenshotListScreen(
         }
     )
 
+    val context = LocalContext.current
+    val mediaProjectionManager = remember {
+        context.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+    }
+    val screenCaptureIntent = mediaProjectionManager.createScreenCaptureIntent()
+
+    val startMediaProjectionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {    // user granted the requested permission
+            val startServiceIntent = Intent(context, ScreenCaptureService::class.java)
+            startServiceIntent.action = ScreenCaptureService.Actions.START_PROJECTION.toString()
+            startServiceIntent.putExtra("resultCode", result.resultCode)
+            startServiceIntent.putExtra("data", result.data)
+            context.startService(startServiceIntent)
+        } else {    // no permission from user
+            Toast.makeText(context, "Permission required for Auto mode", Toast.LENGTH_SHORT)
+                .show()
+        }
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Long Screenshot Capturer") },
+                title = { Text("TITLE") },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 ),
@@ -77,9 +104,33 @@ fun ScreenshotListScreen(
                 }
             )
         },
+        bottomBar = {
+            BottomAppBar(
+                actions = {
+                    IconButton(onClick = {imagePickerLauncher.launch("image/*")}) {
+                        Icon(
+                            imageVector = Icons.Default.LibraryAdd, contentDescription = null
+                        )
+                    }
+                    IconButton(onClick = {screenshotListViewModel.resetImageUris()}) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh, contentDescription = null
+                        )
+                    }
+                    IconButton(onClick = {}) {
+                        Icon(
+                            imageVector = Icons.Default.Edit, contentDescription = null
+                        )
+                    }
+                }, floatingActionButton = {
+                    FloatingActionButton(onClick = {startMediaProjectionLauncher.launch(screenCaptureIntent)}) {
+                        Icon(imageVector = Icons.Default.Cast, contentDescription = null)
+                    }
+                })
+        }
     ) { paddingValues ->
         Box(
-            modifier = modifier.padding(top = paddingValues.calculateTopPadding())
+            modifier = modifier.padding(paddingValues)
         ) {
             if (screenshotListViewModel.selectedImagesUri.isEmpty()) {
                 Box(
@@ -105,19 +156,19 @@ fun ScreenshotListScreen(
             }
 
             // Bottom MenuBar
-            Box(
-                contentAlignment = Alignment.BottomCenter,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                MenuBar(
-                    buttons = listOf(
-                        { AddPictureButton(imagePickerLauncher) },
-                        { ResetPictureButton(screenshotListViewModel) },
-                        { AutoModeButton() },
-                        { NextButton(navController) }
-                    )
-                )
-            }
+//            Box(
+//                contentAlignment = Alignment.BottomCenter,
+//                modifier = Modifier.fillMaxSize()
+//            ) {
+//                MenuBar(
+//                    buttons = listOf(
+//                        { AddPictureButton(imagePickerLauncher) },
+//                        { ResetPictureButton(screenshotListViewModel) },
+//                        { AutoModeButton() },
+//                        { NextButton(navController) }
+//                    )
+//                )
+//            }
         }
     }
 

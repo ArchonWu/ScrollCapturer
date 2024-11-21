@@ -80,45 +80,40 @@ class MainActivity : ComponentActivity() {
                 previewScreenViewModel = hiltViewModel()
 
                 Surface {
-                    Column(
-                        modifier = Modifier
-                            .padding(WindowInsets.statusBars.asPaddingValues())
-                            .padding(WindowInsets.navigationBars.asPaddingValues())
-                    )
-                    {
-                        val sharedViewModel: ScreenshotListViewModel = hiltViewModel()
 
-                        InitializeImageCombinerWindowInsets(imageCombiner)
+                    val sharedViewModel: ScreenshotListViewModel = hiltViewModel()
 
-                        NavHost(
-                            navController = navController,
-                            startDestination = "screenshot_list_screen"
-                        ) {
-                            composable("screenshot_list_screen") {
-                                ScreenshotListScreen(
-                                    navController,
-                                    sharedViewModel,
-                                    modifier = Modifier
-                                )
-                            }
-                            composable("stitch_screen") {
-                                PreviewScreen(
-                                    navController,
-                                    sharedViewModel,
-                                    modifier = Modifier,
-                                    previewScreenViewModel = previewScreenViewModel
-                                )
-                            }
-                            composable("result_screen") {
-                                ResultScreen(
-                                    navController,
-                                    imageCombiner = imageCombiner,
-                                    modifier = Modifier
-                                )
-                            }
+                    InitializeImageCombinerWindowInsets(imageCombiner)
+
+                    NavHost(
+                        navController = navController,
+                        startDestination = "screenshot_list_screen"
+                    ) {
+                        composable("screenshot_list_screen") {
+                            ScreenshotListScreen(
+                                navController,
+                                sharedViewModel,
+                                modifier = Modifier
+                            )
+                        }
+                        composable("stitch_screen") {
+                            PreviewScreen(
+                                navController,
+                                sharedViewModel,
+                                modifier = Modifier,
+                                previewScreenViewModel = previewScreenViewModel
+                            )
+                        }
+                        composable("result_screen") {
+                            ResultScreen(
+                                navController,
+                                imageCombiner = imageCombiner,
+                                modifier = Modifier
+                            )
                         }
                     }
                 }
+
             }
         }
     }
