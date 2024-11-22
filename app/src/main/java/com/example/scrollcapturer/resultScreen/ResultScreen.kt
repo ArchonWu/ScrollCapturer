@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -15,9 +14,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardReturn
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -36,8 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.scrollcapturer.ImageCombiner
-import com.example.scrollcapturer.ui.components.MenuBar
-import com.example.scrollcapturer.ui.components.StyledButton
+import com.example.scrollcapturer.Routes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,22 +50,56 @@ fun ResultScreen(
     modifier: Modifier
 ) {
     val resultImageBitmap = imageCombiner.resultImageBitmap
+    var showDialog by remember {
+        mutableStateOf(false)
+    }
+    var customFileName by remember {
+        mutableStateOf("stitch_image_0")
+    }
 
-    Scaffold(topBar = { TopAppBar(title = { Text("Result") }) }) { paddingValues ->
+    Scaffold(
+        topBar = { TopAppBar(title = { Text("Result") }) },
+        bottomBar = {
+            BottomAppBar(actions = {
+                IconButton(onClick = {
+                    navController.navigate(Routes.Start.name)
+                    imageCombiner.clearServiceCapturedImages()
+                }) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Outlined.KeyboardReturn,
+                        contentDescription = null
+                    )
+                }
+            }, floatingActionButton = {
+                FloatingActionButton(onClick = { showDialog = true}) {
+                    Icon(
+                        imageVector = Icons.Filled.Save,
+                        contentDescription = null
+                    )
+                }
+            })
+
+        })
+    { paddingValues ->
         Box(modifier = modifier.padding(top = paddingValues.calculateTopPadding())) {
             ResultImage(resultImageBitmap)
+        }
 
-            // Bottom MenuBar
-            Box(
-                contentAlignment = Alignment.BottomCenter,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                MenuBar(
-                    buttons = listOf(
-                        { RestartButton(navController, imageCombiner) },
-                        { SaveButton(resultScreenViewModel, resultImageBitmap) })
-                )
-            }
+        // AlertDialog for saving image
+        if (showDialog) {
+            DialogTextField(
+                onDismiss = { showDialog = false },
+                textFieldValue = customFileName,
+                onValueChange = { userInput ->
+                    customFileName = userInput
+                },
+                onSave = {
+                    resultScreenViewModel.saveImageAndShowToast(
+                        resultImageBitmap,
+                        customFileName
+                    )
+                }
+            )
         }
     }
 }
@@ -82,51 +118,6 @@ fun ResultImage(resultImageBitmap: ImageBitmap) {
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.Center)
-        )
-    }
-}
-
-@Composable
-fun RestartButton(navController: NavController, imageCombiner: ImageCombiner) {
-    StyledButton(
-        text = "Restart",
-        onClick = {
-            navController.navigate("screenshot_list_screen")
-            imageCombiner.clearServiceCapturedImages()
-        },
-        imageVector = Icons.AutoMirrored.Outlined.KeyboardReturn
-    )
-}
-
-@Composable
-fun SaveButton(resultScreenViewModel: ResultScreenViewModel, resultImageBitmap: ImageBitmap) {
-    var showDialog by remember {
-        mutableStateOf(false)
-    }
-    var customFileName by remember {
-        mutableStateOf("stitch_image_0")
-    }
-
-    StyledButton(
-        text = "Save",
-        onClick = { showDialog = true },
-        imageVector = Icons.Filled.Save
-    )
-
-    // AlertDialog for saving image
-    if (showDialog) {
-        DialogTextField(
-            onDismiss = { showDialog = false },
-            textFieldValue = customFileName,
-            onValueChange = { userInput ->
-                customFileName = userInput
-            },
-            onSave = {
-                resultScreenViewModel.saveImageAndShowToast(
-                    resultImageBitmap,
-                    customFileName
-                )
-            }
         )
     }
 }

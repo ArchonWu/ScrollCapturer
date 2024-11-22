@@ -12,7 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
-// TODO: replace with BottomAppBar for screen actions, and a hideable floating button
 @Composable
 fun MenuBar(buttons: List<@Composable () -> Unit>) {
     Row(

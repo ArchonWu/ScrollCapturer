@@ -2,6 +2,7 @@ package com.example.scrollcapturer.previewscreen
 
 import android.content.ContentResolver
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.scrollcapturer.ImageCombiner
@@ -20,6 +21,7 @@ class PreviewScreenViewModel @Inject constructor(
     private val tag = "StitchScreenViewModel"
 
     fun handleCombine(imageUriList: List<Uri>, contentResolver: ContentResolver) {
+        Log.d(tag, imageUriList.size.toString())
 
         viewModelScope.launch(Dispatchers.IO) {
             val imageMatList = ImageUtils.convertUrisToMats(imageUriList, contentResolver)

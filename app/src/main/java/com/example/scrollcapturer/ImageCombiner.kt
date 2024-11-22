@@ -69,7 +69,7 @@ class ImageCombiner {
     // perform the stitching (combining two images based on their good feature matches)
     private fun stitchImage(imageMat1: Mat, imageMat2: Mat): Mat {
         Log.d("ImageCombiner", "start stitchImage: ${imageMat1.size()}, ${imageMat2.size()}")
-        Log.d("ImageCombiner", "$statusBarHeightPx, $navigationBarHeightPx, $screenHeight")
+        Log.d("ImageCombiner", "Insets: $statusBarHeightPx, $navigationBarHeightPx, $screenHeight")
         val siftMatchResult = siftFeatureMatching(imageMat1, imageMat2)
 
         // apply transformation based on good matches and stitch images together

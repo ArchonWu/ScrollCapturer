@@ -6,7 +6,6 @@ import android.content.Intent
 import android.media.projection.MediaProjectionManager
 import android.net.Uri
 import android.widget.Toast
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -18,13 +17,10 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Forward
-import androidx.compose.material.icons.filled.AddToPhotos
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Cast
-import androidx.compose.material.icons.filled.CastConnected
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.LibraryAdd
-import androidx.compose.material.icons.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.BottomAppBar
@@ -46,9 +42,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.scrollcapturer.Routes
 import com.example.scrollcapturer.services.ScreenCaptureService
-import com.example.scrollcapturer.ui.components.MenuBar
-import com.example.scrollcapturer.ui.components.StyledButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,32 +60,11 @@ fun ScreenshotListScreen(
         }
     )
 
-    val context = LocalContext.current
-    val mediaProjectionManager = remember {
-        context.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-    }
-    val screenCaptureIntent = mediaProjectionManager.createScreenCaptureIntent()
-
-    val startMediaProjectionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == RESULT_OK) {    // user granted the requested permission
-            val startServiceIntent = Intent(context, ScreenCaptureService::class.java)
-            startServiceIntent.action = ScreenCaptureService.Actions.START_PROJECTION.toString()
-            startServiceIntent.putExtra("resultCode", result.resultCode)
-            startServiceIntent.putExtra("data", result.data)
-            context.startService(startServiceIntent)
-        } else {    // no permission from user
-            Toast.makeText(context, "Permission required for Auto mode", Toast.LENGTH_SHORT)
-                .show()
-        }
-    }
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("TITLE") },
+                title = { Text(text = "Long Screenshot Capturer", style = MaterialTheme.typography.headlineSmall) },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 ),
@@ -107,12 +81,12 @@ fun ScreenshotListScreen(
         bottomBar = {
             BottomAppBar(
                 actions = {
-                    IconButton(onClick = {imagePickerLauncher.launch("image/*")}) {
+                    IconButton(onClick = { imagePickerLauncher.launch("image/*") }) {
                         Icon(
                             imageVector = Icons.Default.LibraryAdd, contentDescription = null
                         )
                     }
-                    IconButton(onClick = {screenshotListViewModel.resetImageUris()}) {
+                    IconButton(onClick = { screenshotListViewModel.resetImageUris() }) {
                         Icon(
                             imageVector = Icons.Default.Refresh, contentDescription = null
                         )
@@ -123,8 +97,10 @@ fun ScreenshotListScreen(
                         )
                     }
                 }, floatingActionButton = {
-                    FloatingActionButton(onClick = {startMediaProjectionLauncher.launch(screenCaptureIntent)}) {
-                        Icon(imageVector = Icons.Default.Cast, contentDescription = null)
+                    if (screenshotListViewModel.selectedImagesUri.isEmpty()) {
+                        CaptureFloatingActionButton()
+                    } else {
+                        PreviewFloatingActionButton(navController)
                     }
                 })
         }
@@ -154,21 +130,6 @@ fun ScreenshotListScreen(
                     ScreenshotGrid(imageUriList = screenshotListViewModel.selectedImagesUri)
                 }
             }
-
-            // Bottom MenuBar
-//            Box(
-//                contentAlignment = Alignment.BottomCenter,
-//                modifier = Modifier.fillMaxSize()
-//            ) {
-//                MenuBar(
-//                    buttons = listOf(
-//                        { AddPictureButton(imagePickerLauncher) },
-//                        { ResetPictureButton(screenshotListViewModel) },
-//                        { AutoModeButton() },
-//                        { NextButton(navController) }
-//                    )
-//                )
-//            }
         }
     }
 
@@ -201,20 +162,7 @@ fun ScreenshotSlot(uri: Uri) {
 }
 
 @Composable
-fun AddPictureButton(
-    imagePickerLauncher: ManagedActivityResultLauncher<String, List<Uri>>
-) {
-    StyledButton(
-        text = "Add",
-        onClick = {
-            imagePickerLauncher.launch("image/*")
-        },
-        imageVector = Icons.Filled.AddToPhotos
-    )
-}
-
-@Composable
-fun AutoModeButton() {
+fun CaptureFloatingActionButton() {
     val context = LocalContext.current
     val mediaProjectionManager = remember {
         context.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
@@ -236,29 +184,21 @@ fun AutoModeButton() {
         }
     }
 
-    StyledButton(
-        text = "Auto",
-        onClick = {
-            startMediaProjectionLauncher.launch(screenCaptureIntent)
-        },
-        imageVector = Icons.Filled.CastConnected
-    )
+    FloatingActionButton(onClick = {
+        startMediaProjectionLauncher.launch(
+            screenCaptureIntent
+        )
+    }) {
+        Icon(imageVector = Icons.Default.Cast, contentDescription = null)
+    }
 }
 
 @Composable
-fun ResetPictureButton(screenshotListViewModel: ScreenshotListViewModel) {
-    StyledButton(
-        text = "Reset",
-        onClick = { screenshotListViewModel.resetImageUris() },
-        imageVector = Icons.Filled.Refresh
-    )
-}
-
-@Composable
-fun NextButton(navController: NavController) {
-    StyledButton(
-        text = "Next",
-        onClick = { navController.navigate("stitch_screen") },
-        imageVector = Icons.AutoMirrored.Filled.Forward
-    )
+fun PreviewFloatingActionButton(navController: NavController) {
+    FloatingActionButton(onClick = { navController.navigate(Routes.Preview.name) }) {
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.Send,
+            contentDescription = null
+        )
+    }
 }

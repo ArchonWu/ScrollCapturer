@@ -29,13 +29,11 @@ import org.opencv.android.OpenCVLoader
 
 @Composable
 fun ScrollCapturerApp(
-    navController: NavHostController
+    navController: NavHostController,
+    imageCombiner: ImageCombiner
 ) {
 
     val context = LocalContext.current
-
-//    lateinit var screenCaptureService: ScreenCaptureService
-    val imageCombiner = ImageCombiner()
 
     LaunchedEffect(Unit) {
         requestPermissions(context as MainActivity)
@@ -52,16 +50,16 @@ fun ScrollCapturerApp(
 
         NavHost(
             navController = navController,
-            startDestination = "screenshot_list_screen"
+            startDestination = Routes.Start.name
         ) {
-            composable("screenshot_list_screen") {
+            composable(Routes.Start.name) {
                 ScreenshotListScreen(
                     navController,
                     sharedViewModel,
                     modifier = Modifier
                 )
             }
-            composable("stitch_screen") {
+            composable(Routes.Preview.name) {
                 PreviewScreen(
                     navController,
                     sharedViewModel,
@@ -69,7 +67,7 @@ fun ScrollCapturerApp(
                     previewScreenViewModel = previewScreenViewModel
                 )
             }
-            composable("result_screen") {
+            composable(Routes.Result.name) {
                 ResultScreen(
                     navController,
                     imageCombiner = imageCombiner,
@@ -132,7 +130,7 @@ fun InitializeImageCombinerWindowInsets(imageCombiner: ImageCombiner) {
 }
 
 // navigation routes
-enum class Routes() {
+enum class Routes {
     Start,
     Preview,
     Result
