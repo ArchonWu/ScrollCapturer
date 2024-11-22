@@ -1,7 +1,5 @@
 package com.example.scrollcapturer.previewscreen
 
-import android.content.ContentResolver
-import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -35,7 +33,6 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.scrollcapturer.Routes
 import com.example.scrollcapturer.screenshotListScreen.ScreenshotListViewModel
-import com.example.scrollcapturer.ui.components.StyledButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,11 +52,21 @@ fun PreviewScreen(
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = Modifier
+            .fillMaxSize()
+            .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
-                title = { Text("Combine Order Preview") },
-                scrollBehavior = scrollBehavior
+                title = {
+                    Text(
+                        text = "Combine Order Preview",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                },
+                scrollBehavior = scrollBehavior,
+                colors = TopAppBarDefaults.mediumTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                ),
             )
         },
         bottomBar = {
@@ -99,7 +106,7 @@ fun PreviewScreen(
         }
     ) { paddingValues ->
         Box(
-            modifier = modifier.padding(top = paddingValues.calculateTopPadding())
+            modifier = modifier.padding(paddingValues)
         ) {
 
             Box(

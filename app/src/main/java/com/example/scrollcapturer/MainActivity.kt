@@ -35,7 +35,6 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         navController.navigate(Routes.Result.name)
-        Log.d("MainActivity", "navigated to result_screen")
     }
 }
 

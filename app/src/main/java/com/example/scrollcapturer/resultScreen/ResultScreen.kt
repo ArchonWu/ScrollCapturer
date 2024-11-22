@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -21,10 +22,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,49 +60,54 @@ fun ResultScreen(
         mutableStateOf("stitch_image_0")
     }
 
-    Scaffold(
-        topBar = { TopAppBar(title = { Text("Result") }) },
-        bottomBar = {
-            BottomAppBar(actions = {
-                IconButton(onClick = {
-                    navController.navigate(Routes.Start.name)
-                    imageCombiner.clearServiceCapturedImages()
-                }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Outlined.KeyboardReturn,
-                        contentDescription = null
-                    )
-                }
-            }, floatingActionButton = {
-                FloatingActionButton(onClick = { showDialog = true}) {
-                    Icon(
-                        imageVector = Icons.Filled.Save,
-                        contentDescription = null
-                    )
-                }
-            })
-
+    Scaffold(modifier = modifier.fillMaxSize(), topBar = {
+        TopAppBar(
+            title = {
+                Text(
+                    text = "Result",
+                    style = MaterialTheme.typography.headlineSmall
+                )
+            },
+            colors = TopAppBarDefaults.mediumTopAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer
+            ),
+        )
+    }, bottomBar = {
+        BottomAppBar(actions = {
+            IconButton(onClick = {
+                navController.navigate(Routes.Start.name)
+                imageCombiner.clearServiceCapturedImages()
+            }) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.KeyboardReturn,
+                    contentDescription = null
+                )
+            }
+        }, floatingActionButton = {
+            FloatingActionButton(onClick = { showDialog = true }) {
+                Icon(
+                    imageVector = Icons.Filled.Save, contentDescription = null
+                )
+            }
         })
-    { paddingValues ->
-        Box(modifier = modifier.padding(top = paddingValues.calculateTopPadding())) {
+
+    }) { paddingValues ->
+        Box(modifier = modifier.padding(paddingValues)) {
             ResultImage(resultImageBitmap)
         }
 
         // AlertDialog for saving image
         if (showDialog) {
-            DialogTextField(
-                onDismiss = { showDialog = false },
+            DialogTextField(onDismiss = { showDialog = false },
                 textFieldValue = customFileName,
                 onValueChange = { userInput ->
                     customFileName = userInput
                 },
                 onSave = {
                     resultScreenViewModel.saveImageAndShowToast(
-                        resultImageBitmap,
-                        customFileName
+                        resultImageBitmap, customFileName
                     )
-                }
-            )
+                })
         }
     }
 }
@@ -108,10 +116,8 @@ fun ResultScreen(
 fun ResultImage(resultImageBitmap: ImageBitmap) {
     Box(
         contentAlignment = Alignment.TopCenter,
-        modifier = Modifier
-            .verticalScroll(rememberScrollState())
-    )
-    {
+        modifier = Modifier.verticalScroll(rememberScrollState())
+    ) {
         Image(
             bitmap = resultImageBitmap,
             contentDescription = "result of stitching",
@@ -130,56 +136,44 @@ fun DialogTextField(
     onSave: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
-    AlertDialog(
-        shape = RoundedCornerShape(0.dp),
-        onDismissRequest = {
-            focusManager.clearFocus()
-            onDismiss()
-        },
-        title = { Text("Enter file name:") },
-        text = {
-            Column {
-                TextField(
-                    value = textFieldValue,
-                    onValueChange = onValueChange,
-                    singleLine = true,
-                    modifier = Modifier
-                        .fillMaxWidth()
+    AlertDialog(shape = RoundedCornerShape(0.dp), onDismissRequest = {
+        focusManager.clearFocus()
+        onDismiss()
+    }, title = { Text("Enter file name:") }, text = {
+        Column {
+            TextField(
+                value = textFieldValue,
+                onValueChange = onValueChange,
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }, confirmButton = {
+        Row(
+            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // DismissButton
+            Button(
+                onClick = { onDismiss() },
+                shape = RoundedCornerShape(0.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.LightGray, contentColor = Color.Black
                 )
-            }
-        },
-        confirmButton = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // DismissButton
-                Button(
-                    onClick = { onDismiss() },
-                    shape = RoundedCornerShape(0.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.LightGray,
-                        contentColor = Color.Black
-                    )
-                ) {
-                    Text("Back")
-                }
+                Text("Back")
+            }
 
-                // ConfirmButton
-                Button(
-                    onClick = {
-                        onSave()
-                        onDismiss()
-                    },
-                    shape = RoundedCornerShape(0.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.LightGray,
-                        contentColor = Color.Black
-                    )
-                ) {
-                    Text("Save")
-                }
+            // ConfirmButton
+            Button(
+                onClick = {
+                    onSave()
+                    onDismiss()
+                }, shape = RoundedCornerShape(0.dp), colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.LightGray, contentColor = Color.Black
+                )
+            ) {
+                Text("Save")
             }
         }
-    )
+    })
 }
