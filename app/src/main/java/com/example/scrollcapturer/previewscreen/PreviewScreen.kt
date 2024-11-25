@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.KeyboardReturn
 import androidx.compose.material.icons.filled.ContentCut
 import androidx.compose.material.icons.filled.ZoomIn
@@ -67,17 +68,25 @@ fun PreviewScreen(
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 ),
+                navigationIcon = {
+                    IconButton(onClick = {}) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = null
+                        )
+                    }
+                }
             )
         },
         bottomBar = {
             BottomAppBar(
                 actions = {
-                    IconButton(onClick = { navController.navigate(Routes.Start.name) }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.KeyboardReturn,
-                            contentDescription = null
-                        )
-                    }
+//                    IconButton(onClick = { navController.navigate(Routes.Start.name) }) {
+//                        Icon(
+//                            imageVector = Icons.AutoMirrored.Outlined.KeyboardReturn,
+//                            contentDescription = null
+//                        )
+//                    }
                     IconButton(onClick = {}) {
                         Icon(
                             imageVector = Icons.Default.ZoomIn,

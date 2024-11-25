@@ -12,8 +12,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.KeyboardReturn
 import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
@@ -71,25 +73,40 @@ fun ResultScreen(
             colors = TopAppBarDefaults.mediumTopAppBarColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer
             ),
+            navigationIcon = {
+                IconButton(onClick = {}) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = null
+                    )
+                }
+            }
         )
     }, bottomBar = {
-        BottomAppBar(actions = {
-            IconButton(onClick = {
-                navController.navigate(Routes.Start.name)
-                imageCombiner.clearServiceCapturedImages()
-            }) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.KeyboardReturn,
-                    contentDescription = null
-                )
-            }
-        }, floatingActionButton = {
-            FloatingActionButton(onClick = { showDialog = true }) {
-                Icon(
-                    imageVector = Icons.Filled.Save, contentDescription = null
-                )
-            }
-        })
+        BottomAppBar(
+            actions = {
+//                IconButton(onClick = {
+//                    navController.navigate(Routes.Start.name)
+//                    imageCombiner.clearServiceCapturedImages()
+//                }) {
+//                    Icon(
+//                        imageVector = Icons.AutoMirrored.Outlined.KeyboardReturn,
+//                        contentDescription = null
+//                    )
+//                }
+                IconButton(onClick = {}) {
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = null
+                    )
+                }
+            }, floatingActionButton = {
+                FloatingActionButton(onClick = { showDialog = true }) {
+                    Icon(
+                        imageVector = Icons.Filled.Save, contentDescription = null
+                    )
+                }
+            })
 
     }) { paddingValues ->
         Box(modifier = modifier.padding(paddingValues)) {
