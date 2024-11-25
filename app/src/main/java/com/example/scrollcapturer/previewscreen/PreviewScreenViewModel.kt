@@ -20,13 +20,12 @@ class PreviewScreenViewModel @Inject constructor(
 
     private val tag = "StitchScreenViewModel"
 
-    fun handleCombine(imageUriList: List<Uri>, contentResolver: ContentResolver) {
+    fun addImagesToCombiner(imageUriList: List<Uri>, contentResolver: ContentResolver) {
         Log.d(tag, imageUriList.size.toString())
 
         viewModelScope.launch(Dispatchers.IO) {
             val imageMatList = ImageUtils.convertUrisToMats(imageUriList, contentResolver)
             imageCombiner.addScreenshotsFromMats(imageMatList)
-            imageCombiner.stitchAllImages()
         }
 
     }

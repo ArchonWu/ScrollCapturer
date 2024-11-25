@@ -9,9 +9,13 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.scrollcapturer.ImageCombiner
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -22,10 +26,28 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ResultScreenViewModel @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val imageCombiner: ImageCombiner
 ) : ViewModel() {
 
-    // get the downloads directory
+    private val _resultImageBitmap = MutableStateFlow<ImageBitmap?>(null)
+    val resultImageBitmap: StateFlow<ImageBitmap?> = _resultImageBitmap.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    fun startStitching() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val result = withContext(Dispatchers.Default) {
+                imageCombiner.stitchAllImages()
+            }
+            _resultImageBitmap.value = result
+            _isLoading.value = false
+        }
+    }
+
+    // get the downloads directory as default save directory
     private val downloadsDir: File =
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
 
@@ -34,7 +56,6 @@ class ResultScreenViewModel @Inject constructor(
             downloadsDir.mkdirs()
         }
     }
-
 
     fun saveImageAndShowToast(imageBitmap: ImageBitmap, fileName: String) {
         viewModelScope.launch {

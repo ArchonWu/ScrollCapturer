@@ -34,7 +34,7 @@ class ImageCombiner {
     private var serviceCapturedImages = mutableListOf<Bitmap>()
     private var serviceCombineResult: ImageBitmap? = null
 
-    var resultImageBitmap: ImageBitmap by mutableStateOf(ImageBitmap(1, 1))
+    private var resultImageBitmap: ImageBitmap by mutableStateOf(ImageBitmap(1, 1))
         private set
     private val tag = "ImageCombiner"
 

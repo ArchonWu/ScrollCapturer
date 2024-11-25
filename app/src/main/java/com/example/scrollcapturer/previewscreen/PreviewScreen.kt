@@ -1,6 +1,5 @@
 package com.example.scrollcapturer.previewscreen
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,7 +9,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.outlined.KeyboardReturn
 import androidx.compose.material.icons.filled.ContentCut
 import androidx.compose.material.icons.filled.ZoomIn
 import androidx.compose.material.icons.filled.ZoomOut
@@ -30,9 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.scrollcapturer.Routes
 import com.example.scrollcapturer.screenshotListScreen.ScreenshotListViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,6 +37,7 @@ fun PreviewScreen(
     sharedViewModel: ScreenshotListViewModel,
     previewScreenViewModel: PreviewScreenViewModel,
     onNextButtonClicked: () -> Unit = {},
+    onReturnButtonClicked: () -> Unit = {},
     modifier: Modifier,
 ) {
 
@@ -69,7 +66,7 @@ fun PreviewScreen(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 ),
                 navigationIcon = {
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = onReturnButtonClicked) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = null
@@ -96,8 +93,7 @@ fun PreviewScreen(
                 },
                 floatingActionButton = {
                     FloatingActionButton(onClick = {
-                        Log.d("PREVIEW", "$imageUriList.size")
-                        previewScreenViewModel.handleCombine(imageUriList, contentResolver)
+                        previewScreenViewModel.addImagesToCombiner(imageUriList, contentResolver)
                         onNextButtonClicked()
                     }) {
                         Icon(
@@ -125,7 +121,7 @@ fun PreviewScreen(
                         items(imageUriList) { uri ->
                             Image(
                                 painter = rememberAsyncImagePainter(model = uri),
-                                contentDescription = "screenshots order preview",
+                                contentDescription = null,
                                 modifier = Modifier
                                     .size(400.dp)
                             )

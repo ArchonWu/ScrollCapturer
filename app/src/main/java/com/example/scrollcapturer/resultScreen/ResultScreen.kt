@@ -30,6 +30,8 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,23 +41,31 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.scrollcapturer.ImageCombiner
+import com.example.scrollcapturer.Routes
+import com.example.scrollcapturer.ui.theme.ScrollCapturerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ResultScreen(
-    resultScreenViewModel: ResultScreenViewModel = hiltViewModel(),
-    imageCombiner: ImageCombiner,
+    resultScreenViewModel: ResultScreenViewModel,
+    onReturnButtonClicked: () -> Unit = {},
     modifier: Modifier
 ) {
-    val resultImageBitmap = imageCombiner.resultImageBitmap
+
+    val resultImageBitmap by resultScreenViewModel.resultImageBitmap.collectAsState()
+    val isLoading by resultScreenViewModel.isLoading.collectAsState()
+
     var showDialog by remember {
         mutableStateOf(false)
     }
     var customFileName by remember {
         mutableStateOf("stitch_image_0")
+    }
+
+    LaunchedEffect(Unit) {
+        resultScreenViewModel.startStitching()
     }
 
     Scaffold(modifier = modifier.fillMaxSize(), topBar = {
@@ -70,7 +80,7 @@ fun ResultScreen(
                 containerColor = MaterialTheme.colorScheme.primaryContainer
             ),
             navigationIcon = {
-                IconButton(onClick = {}) {
+                IconButton(onClick = onReturnButtonClicked) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = null
@@ -97,10 +107,33 @@ fun ResultScreen(
 
     }) { paddingValues ->
         Box(modifier = modifier.padding(paddingValues)) {
-            ResultImage(resultImageBitmap)
+            when {
+                isLoading -> {
+                    // loading indicator
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text("Processing...", style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
+
+                resultImageBitmap != null -> {
+                    ResultImage(resultImageBitmap!!)
+                }
+
+                else -> {
+                    Text(
+                        text = "No image available.",
+                        modifier = Modifier.align(Alignment.Center),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
         }
 
-        // AlertDialog for saving image
+        // show AlertDialog for saving image
         if (showDialog) {
             DialogTextField(onDismiss = { showDialog = false },
                 textFieldValue = customFileName,
@@ -108,9 +141,11 @@ fun ResultScreen(
                     customFileName = userInput
                 },
                 onSave = {
-                    resultScreenViewModel.saveImageAndShowToast(
-                        resultImageBitmap, customFileName
-                    )
+                    resultImageBitmap?.let {
+                        resultScreenViewModel.saveImageAndShowToast(
+                            it, customFileName
+                        )
+                    }
                 })
         }
     }

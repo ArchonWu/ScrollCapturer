@@ -23,8 +23,10 @@ import androidx.navigation.compose.composable
 import com.example.scrollcapturer.previewscreen.PreviewScreen
 import com.example.scrollcapturer.previewscreen.PreviewScreenViewModel
 import com.example.scrollcapturer.resultScreen.ResultScreen
+import com.example.scrollcapturer.resultScreen.ResultScreenViewModel
 import com.example.scrollcapturer.screenshotListScreen.ScreenshotListScreen
 import com.example.scrollcapturer.screenshotListScreen.ScreenshotListViewModel
+import okhttp3.Route
 import org.opencv.android.OpenCVLoader
 
 @Composable
@@ -45,6 +47,7 @@ fun ScrollCapturerApp(
 
         val sharedViewModel: ScreenshotListViewModel = hiltViewModel()
         val previewScreenViewModel: PreviewScreenViewModel = hiltViewModel()
+        val resultScreenViewModel: ResultScreenViewModel = hiltViewModel()
 
         InitializeImageCombinerWindowInsets(imageCombiner)
 
@@ -64,12 +67,14 @@ fun ScrollCapturerApp(
                     sharedViewModel = sharedViewModel,
                     previewScreenViewModel = previewScreenViewModel,
                     onNextButtonClicked = { navController.navigate(Routes.Result.name) },
+                    onReturnButtonClicked = { navController.popBackStack(Routes.Start.name, inclusive = false) },
                     modifier = Modifier
                 )
             }
             composable(Routes.Result.name) {
                 ResultScreen(
-                    imageCombiner = imageCombiner,
+                    resultScreenViewModel = resultScreenViewModel,
+                    onReturnButtonClicked = { navController.popBackStack(Routes.Start.name, inclusive = false) },
                     modifier = Modifier
                 )
             }
