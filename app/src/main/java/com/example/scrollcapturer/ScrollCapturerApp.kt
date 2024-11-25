@@ -54,22 +54,21 @@ fun ScrollCapturerApp(
         ) {
             composable(Routes.Start.name) {
                 ScreenshotListScreen(
-                    navController,
-                    sharedViewModel,
+                    screenshotListViewModel = sharedViewModel,
+                    onNextButtonClicked = { navController.navigate(Routes.Preview.name) },
                     modifier = Modifier
                 )
             }
             composable(Routes.Preview.name) {
                 PreviewScreen(
-                    navController,
-                    sharedViewModel,
-                    modifier = Modifier,
-                    previewScreenViewModel = previewScreenViewModel
+                    sharedViewModel = sharedViewModel,
+                    previewScreenViewModel = previewScreenViewModel,
+                    onNextButtonClicked = { navController.navigate(Routes.Result.name) },
+                    modifier = Modifier
                 )
             }
             composable(Routes.Result.name) {
                 ResultScreen(
-                    navController,
                     imageCombiner = imageCombiner,
                     modifier = Modifier
                 )

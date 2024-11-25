@@ -38,9 +38,9 @@ import com.example.scrollcapturer.screenshotListScreen.ScreenshotListViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PreviewScreen(
-    navController: NavController,
     sharedViewModel: ScreenshotListViewModel,
     previewScreenViewModel: PreviewScreenViewModel,
+    onNextButtonClicked: () -> Unit = {},
     modifier: Modifier,
 ) {
 
@@ -81,12 +81,6 @@ fun PreviewScreen(
         bottomBar = {
             BottomAppBar(
                 actions = {
-//                    IconButton(onClick = { navController.navigate(Routes.Start.name) }) {
-//                        Icon(
-//                            imageVector = Icons.AutoMirrored.Outlined.KeyboardReturn,
-//                            contentDescription = null
-//                        )
-//                    }
                     IconButton(onClick = {}) {
                         Icon(
                             imageVector = Icons.Default.ZoomIn,
@@ -104,7 +98,7 @@ fun PreviewScreen(
                     FloatingActionButton(onClick = {
                         Log.d("PREVIEW", "$imageUriList.size")
                         previewScreenViewModel.handleCombine(imageUriList, contentResolver)
-                        navController.navigate(Routes.Result.name)
+                        onNextButtonClicked()
                     }) {
                         Icon(
                             imageVector = Icons.Filled.ContentCut,

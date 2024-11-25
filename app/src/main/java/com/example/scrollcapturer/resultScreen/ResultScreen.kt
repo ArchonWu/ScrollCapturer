@@ -13,7 +13,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.outlined.KeyboardReturn
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
@@ -42,14 +41,11 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.example.scrollcapturer.ImageCombiner
-import com.example.scrollcapturer.Routes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ResultScreen(
-    navController: NavController,
     resultScreenViewModel: ResultScreenViewModel = hiltViewModel(),
     imageCombiner: ImageCombiner,
     modifier: Modifier
@@ -85,15 +81,6 @@ fun ResultScreen(
     }, bottomBar = {
         BottomAppBar(
             actions = {
-//                IconButton(onClick = {
-//                    navController.navigate(Routes.Start.name)
-//                    imageCombiner.clearServiceCapturedImages()
-//                }) {
-//                    Icon(
-//                        imageVector = Icons.AutoMirrored.Outlined.KeyboardReturn,
-//                        contentDescription = null
-//                    )
-//                }
                 IconButton(onClick = {}) {
                     Icon(
                         imageVector = Icons.Default.Settings,

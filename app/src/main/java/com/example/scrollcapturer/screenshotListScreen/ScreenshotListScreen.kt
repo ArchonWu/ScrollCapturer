@@ -17,14 +17,11 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Cast
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.LibraryAdd
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,16 +39,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.scrollcapturer.Routes
 import com.example.scrollcapturer.services.ScreenCaptureService
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenshotListScreen(
-    navController: NavController,
     screenshotListViewModel: ScreenshotListViewModel,
+    onNextButtonClicked: () -> Unit = {},
     modifier: Modifier
 ) {
 
@@ -66,7 +61,12 @@ fun ScreenshotListScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(text = "Long Screenshot Capturer", style = MaterialTheme.typography.headlineSmall) },
+                title = {
+                    Text(
+                        text = "Long Screenshot Capturer",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 )
@@ -94,7 +94,7 @@ fun ScreenshotListScreen(
                     if (screenshotListViewModel.selectedImagesUri.isEmpty()) {
                         CaptureFloatingActionButton()
                     } else {
-                        PreviewFloatingActionButton(navController)
+                        PreviewFloatingActionButton(onNextButtonClicked)
                     }
                 })
         }
@@ -188,8 +188,8 @@ fun CaptureFloatingActionButton() {
 }
 
 @Composable
-fun PreviewFloatingActionButton(navController: NavController) {
-    FloatingActionButton(onClick = { navController.navigate(Routes.Preview.name) }) {
+fun PreviewFloatingActionButton(onNextButtonClicked: () -> Unit) {
+    FloatingActionButton(onClick = onNextButtonClicked) {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.Send,
             contentDescription = null
