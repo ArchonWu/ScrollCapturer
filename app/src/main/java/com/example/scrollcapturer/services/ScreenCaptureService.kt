@@ -56,12 +56,12 @@ class ScreenCaptureService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(tag, intent.toString())
         when (intent?.action) {
-            Actions.START_PROJECTION.toString() -> startProjection(intent)      // start service
-            Actions.STOP_PROJECTION.toString() -> stopProjection()              // stop service
-            Actions.START_AUTO_CAPTURE.toString() ->
+            Actions.START_PROJECTION.name -> startProjection(intent)      // start service
+            Actions.STOP_PROJECTION.name -> stopProjection()              // stop service
+            Actions.START_AUTO_CAPTURE.name ->
                 CoroutineScope(Dispatchers.IO).launch { executeAutoCaptureAndCombine() }    // start capture
-            Actions.CAPTURE_SCREEN.toString() -> captureCurrentScreenToStorage()       // capture screen once
-            Actions.STOP_CONTINUOUS_SCROLL.toString() -> if (!isCollapsing) completeCapture()      // stop auto-scrolling and capturing
+            Actions.CAPTURE_SCREEN.name -> captureCurrentScreenToStorage()       // capture screen once
+            Actions.STOP_CONTINUOUS_SCROLL.name -> if (!isCollapsing) completeCapture()      // stop auto-scrolling and capturing
         }
         return super.onStartCommand(intent, flags, startId)
     }
@@ -127,11 +127,6 @@ class ScreenCaptureService : Service() {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
         startActivity(openResultIntent)
-
-        // changed to calling from ResultScreenViewModel
-//        CoroutineScope(Dispatchers.IO).launch {
-//            val resultImageBitmap = imageCombiner.stitchAllImages()
-//        }
     }
 
     private fun captureScreenshot(): Bitmap? {

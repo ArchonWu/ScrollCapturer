@@ -17,8 +17,8 @@ class GestureScrollService : AccessibilityService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
         when (intent?.action) {
-            Actions.COLLAPSE_STATUS_BAR.toString() -> collapseStatusBar()
-            Actions.SCROLL_DOWN_HALF_PAGE.toString() -> scrollDownByHalfPage()
+            Actions.COLLAPSE_STATUS_BAR.name -> collapseStatusBar()
+            Actions.SCROLL_DOWN_HALF_PAGE.name -> scrollDownByHalfPage()
         }
 
         return START_NOT_STICKY
@@ -46,29 +46,22 @@ class GestureScrollService : AccessibilityService() {
         val displayMetrics = resources.displayMetrics
         screenHeight = displayMetrics.heightPixels
         screenWidth = displayMetrics.widthPixels
-
-        Log.d(tag, "onCreate()")
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
         stopSelf()
-        Log.d(tag, "onTaskRemoved(), stopping service")
     }
 
     override fun onInterrupt() {
-        Log.d(tag, "onInterrupt()")
         stopAutoScroll()
     }
 
     private fun stopAutoScroll() {
-
         // intent for AutoScrollCaptureService to stop continuous-scrolling
         val stopContinuousScroll = Intent(this, ScreenCaptureService::class.java)
         stopContinuousScroll.action = ScreenCaptureService.Actions.STOP_CONTINUOUS_SCROLL.toString()
         startService(stopContinuousScroll)
-
-        Log.d(tag, "stopAutoScroll()")
     }
 
     // scroll down by half the page (half of screen height)
