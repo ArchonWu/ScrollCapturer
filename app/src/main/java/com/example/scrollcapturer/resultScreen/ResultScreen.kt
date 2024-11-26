@@ -176,44 +176,45 @@ fun DialogTextField(
     onSave: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
-    AlertDialog(shape = RoundedCornerShape(0.dp), onDismissRequest = {
-        focusManager.clearFocus()
-        onDismiss()
-    }, title = { Text("Enter file name:") }, text = {
-        Column {
-            TextField(
-                value = textFieldValue,
-                onValueChange = onValueChange,
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-    }, confirmButton = {
-        Row(
-            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            // DismissButton
-            Button(
-                onClick = { onDismiss() },
-                shape = RoundedCornerShape(0.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.LightGray, contentColor = Color.Black
+    AlertDialog(shape = RoundedCornerShape(0.dp),
+        onDismissRequest = {
+            focusManager.clearFocus()
+            onDismiss()
+        }, title = { Text("Enter file name:") }, text = {
+            Column {
+                TextField(
+                    value = textFieldValue,
+                    onValueChange = onValueChange,
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
                 )
-            ) {
-                Text("Back")
             }
+        }, confirmButton = {
+            Row(
+                modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                // DismissButton
+                Button(
+                    onClick = { onDismiss() },
+                    shape = RoundedCornerShape(0.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.LightGray, contentColor = Color.Black
+                    )
+                ) {
+                    Text("Back")
+                }
 
-            // ConfirmButton
-            Button(
-                onClick = {
-                    onSave()
-                    onDismiss()
-                }, shape = RoundedCornerShape(0.dp), colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.LightGray, contentColor = Color.Black
-                )
-            ) {
-                Text("Save")
+                // ConfirmButton
+                Button(
+                    onClick = {
+                        onSave()
+                        onDismiss()
+                    }, shape = RoundedCornerShape(0.dp), colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.LightGray, contentColor = Color.Black
+                    )
+                ) {
+                    Text("Save")
+                }
             }
-        }
-    })
+        })
 }

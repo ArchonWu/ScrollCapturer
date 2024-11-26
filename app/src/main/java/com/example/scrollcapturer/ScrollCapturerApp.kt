@@ -3,6 +3,8 @@ package com.example.scrollcapturer
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
+import android.provider.Settings
 import android.util.Log
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -26,7 +28,6 @@ import com.example.scrollcapturer.resultScreen.ResultScreen
 import com.example.scrollcapturer.resultScreen.ResultScreenViewModel
 import com.example.scrollcapturer.screenshotListScreen.ScreenshotListScreen
 import com.example.scrollcapturer.screenshotListScreen.ScreenshotListViewModel
-import okhttp3.Route
 import org.opencv.android.OpenCVLoader
 
 @Composable
@@ -59,6 +60,8 @@ fun ScrollCapturerApp(
                 ScreenshotListScreen(
                     screenshotListViewModel = sharedViewModel,
                     onNextButtonClicked = { navController.navigate(Routes.Preview.name) },
+                    onRequestAccessibilityPermission =
+                    { requestAccessibilityPermission(context as MainActivity) },
                     modifier = Modifier
                 )
             }
@@ -67,14 +70,24 @@ fun ScrollCapturerApp(
                     sharedViewModel = sharedViewModel,
                     previewScreenViewModel = previewScreenViewModel,
                     onNextButtonClicked = { navController.navigate(Routes.Result.name) },
-                    onReturnButtonClicked = { navController.popBackStack(Routes.Start.name, inclusive = false) },
+                    onReturnButtonClicked = {
+                        navController.popBackStack(
+                            Routes.Start.name,
+                            inclusive = false
+                        )
+                    },
                     modifier = Modifier
                 )
             }
             composable(Routes.Result.name) {
                 ResultScreen(
                     resultScreenViewModel = resultScreenViewModel,
-                    onReturnButtonClicked = { navController.popBackStack(Routes.Start.name, inclusive = false) },
+                    onReturnButtonClicked = {
+                        navController.popBackStack(
+                            Routes.Start.name,
+                            inclusive = false
+                        )
+                    },
                     modifier = Modifier
                 )
             }
@@ -90,6 +103,12 @@ fun requestPermissions(activity: MainActivity) {
         ),
         0
     )
+}
+
+fun requestAccessibilityPermission(activity: MainActivity) {
+    // prompt user to give permission to using accessibility service if not already granted
+    val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+    activity.startActivity(intent)
 }
 
 fun initializeNotificationChannel(context: Context) {
