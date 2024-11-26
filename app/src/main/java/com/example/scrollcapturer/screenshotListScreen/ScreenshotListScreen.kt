@@ -239,12 +239,6 @@ fun CaptureFloatingActionButton(
     }
 }
 
-fun checkAccessibilityPermission(context: Context): Boolean {
-    val enabledServices =
-        Settings.Secure.getString(context.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
-    return enabledServices?.contains(context.packageName) == true
-}
-
 @Composable
 fun PreviewFloatingActionButton(onNextButtonClicked: () -> Unit) {
     FloatingActionButton(
