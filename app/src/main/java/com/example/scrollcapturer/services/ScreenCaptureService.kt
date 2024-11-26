@@ -128,9 +128,10 @@ class ScreenCaptureService : Service() {
         }
         startActivity(openResultIntent)
 
-        CoroutineScope(Dispatchers.IO).launch {
-            val resultImageBitmap = imageCombiner.stitchAllImages()
-        }
+        // changed to calling from ResultScreenViewModel
+//        CoroutineScope(Dispatchers.IO).launch {
+//            val resultImageBitmap = imageCombiner.stitchAllImages()
+//        }
     }
 
     private fun captureScreenshot(): Bitmap? {

@@ -35,7 +35,7 @@ class ImageCombiner {
     private var serviceCombineResult: ImageBitmap? = null
 
     private var resultImageBitmap: ImageBitmap by mutableStateOf(ImageBitmap(1, 1))
-        private set
+
     private val tag = "ImageCombiner"
 
     fun processServiceCapturedImage(screenshotBitmap: Bitmap?) {
@@ -126,6 +126,7 @@ class ImageCombiner {
         return resultImageMat
     }
 
+    // stitch two images just by piecing them together vertically
     private fun simpleStitch(imageMat1: Mat, imageMat2: Mat): Mat {
 
         val rowsToCopy1 = imageMat1.rows() - navigationBarHeightPx
@@ -257,6 +258,7 @@ class ImageCombiner {
         resultImageBitmap = (ImageBitmap(1, 1))
     }
 
+    // a one-time add all method
     fun addScreenshotsFromMats(imageMats: List<Mat>) {
         val bitmaps = imageMats.map { mat ->
             val bitmap = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888)

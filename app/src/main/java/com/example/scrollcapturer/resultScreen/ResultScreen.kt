@@ -68,44 +68,45 @@ fun ResultScreen(
         resultScreenViewModel.startStitching()
     }
 
-    Scaffold(modifier = modifier.fillMaxSize(), topBar = {
-        TopAppBar(
-            title = {
-                Text(
-                    text = "Result",
-                    style = MaterialTheme.typography.headlineSmall
-                )
-            },
-            colors = TopAppBarDefaults.mediumTopAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer
-            ),
-            navigationIcon = {
-                IconButton(onClick = onReturnButtonClicked) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = null
+    Scaffold(modifier = modifier.fillMaxSize(),
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Result",
+                        style = MaterialTheme.typography.headlineSmall
                     )
+                },
+                colors = TopAppBarDefaults.mediumTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                ),
+                navigationIcon = {
+                    IconButton(onClick = onReturnButtonClicked) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = null
+                        )
+                    }
                 }
-            }
-        )
-    }, bottomBar = {
-        BottomAppBar(
-            actions = {
-                IconButton(onClick = {}) {
-                    Icon(
-                        imageVector = Icons.Default.Settings,
-                        contentDescription = null
-                    )
-                }
-            }, floatingActionButton = {
-                FloatingActionButton(onClick = { showDialog = true }) {
-                    Icon(
-                        imageVector = Icons.Filled.Save, contentDescription = null
-                    )
-                }
-            })
+            )
+        }, bottomBar = {
+            BottomAppBar(
+                actions = {
+                    IconButton(onClick = {}) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = null
+                        )
+                    }
+                }, floatingActionButton = {
+                    FloatingActionButton(onClick = { showDialog = true }) {
+                        Icon(
+                            imageVector = Icons.Filled.Save, contentDescription = null
+                        )
+                    }
+                })
 
-    }) { paddingValues ->
+        }) { paddingValues ->
         Box(modifier = modifier.padding(paddingValues)) {
             when {
                 isLoading -> {
