@@ -31,24 +31,41 @@ class ImageCombiner {
     private var navigationBarHeightPx by mutableIntStateOf(0)
     private var screenHeight by mutableIntStateOf(0)
 
-    private var serviceCapturedImages = mutableListOf<Bitmap>()
-    private var serviceCombineResult: ImageBitmap? = null
+    private var userAddedImages = mutableListOf<Bitmap>()
+    private var userCombineResult: ImageBitmap? = null
 
     private var resultImageBitmap: ImageBitmap by mutableStateOf(ImageBitmap(1, 1))
 
     private val tag = "ImageCombiner"
 
+    private var tempResult: Mat? = null
+    private var count: Int = 0
+
     fun processServiceCapturedImage(screenshotBitmap: Bitmap?) {
-        screenshotBitmap?.let {
-            serviceCapturedImages.add(it) // only add if non-null
+
+        if (tempResult == null && screenshotBitmap != null) {
+            val capturedMat = ImageUtils.convertBitmapToMat(screenshotBitmap)
+            tempResult = capturedMat
+            count++
+            Log.d(tag, "processServiceCapturedImage() count: $count, ${tempResult!!.size()}")
+
+        } else if (screenshotBitmap != null) {
+            val capturedMat = ImageUtils.convertBitmapToMat(screenshotBitmap)
+            tempResult = stitchImage(tempResult!!, capturedMat)
+            count++
+            Log.d(tag, "processServiceCapturedImage() count: $count, ${tempResult!!.size()}")
+
+        } else {
+            Log.d(tag, "processServiceCapturedImage(): $tempResult, $screenshotBitmap, $count")
         }
+
     }
 
     fun stitchAllImages(): ImageBitmap {
-        Log.d(tag, "stitchAllServiceCapturedImages(), ${serviceCapturedImages.size}")
+        Log.d(tag, "stitchAllImages(), ${userAddedImages.size}")
 
-        val serviceCapturedImageMats = ImageUtils.convertBitmapToMat(serviceCapturedImages)
-        serviceCombineResult =
+        val serviceCapturedImageMats = ImageUtils.convertBitmapsToMats(userAddedImages)
+        userCombineResult =
             ImageUtils.convertMatToBitmap(serviceCapturedImageMats[0]).asImageBitmap()
 
         // iteratively stitches two images in the list: do feature matching, and images stitching
@@ -56,12 +73,12 @@ class ImageCombiner {
         for (i in 1 until serviceCapturedImageMats.size) {
             resultStitchedImage = stitchImage(resultStitchedImage, serviceCapturedImageMats[i])
         }
-        serviceCombineResult =
+        userCombineResult =
             ImageUtils.convertMatToBitmap(resultStitchedImage).asImageBitmap()
 
         clearServiceCapturedImages()
-        Log.d(tag, "stitchAllServiceCapturedImages(): finished")
-        resultImageBitmap = serviceCombineResult as ImageBitmap
+        Log.d(tag, "stitchAllImages(): finished")
+        resultImageBitmap = userCombineResult as ImageBitmap
 
         return resultImageBitmap
     }
@@ -135,7 +152,7 @@ class ImageCombiner {
         val targetHeight =
             imageMat1.rows() + imageMat2.rows() - statusBarHeightPx - navigationBarHeightPx
         val resultImageMat = Mat(targetHeight, imageMat1.cols(), imageMat1.type())
-        
+
         imageMat1
             .submat(0, rowsToCopy1, 0, imageMat1.cols())
             .copyTo(resultImageMat.submat(0, rowsToCopy1, 0, imageMat1.cols()))
@@ -250,11 +267,11 @@ class ImageCombiner {
     }
 
     fun addScreenshot(screenshotBitmap: Bitmap) {
-        serviceCapturedImages += screenshotBitmap
+        userAddedImages += screenshotBitmap
     }
 
     fun clearServiceCapturedImages() {
-        serviceCapturedImages = mutableListOf<Bitmap>()
+        userAddedImages = mutableListOf<Bitmap>()
         resultImageBitmap = (ImageBitmap(1, 1))
     }
 
@@ -265,7 +282,10 @@ class ImageCombiner {
             Utils.matToBitmap(mat, bitmap)
             bitmap
         }
-        serviceCapturedImages += bitmaps
+        userAddedImages += bitmaps
     }
 
+    fun getUserAddedImagesSize(): Int {
+        return userAddedImages.size
+    }
 }

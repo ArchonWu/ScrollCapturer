@@ -5,7 +5,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.Image
 import android.net.Uri
-import androidx.core.graphics.createBitmap
 import org.opencv.android.Utils
 import org.opencv.core.Mat
 
@@ -69,7 +68,7 @@ object ImageUtils {
         return bitmap
     }
 
-    fun convertBitmapToMat(bitmapList: List<Bitmap>): List<Mat> {
+    fun convertBitmapsToMats(bitmapList: List<Bitmap>): List<Mat> {
         val matList = mutableListOf<Mat>()
         for (bitmap in bitmapList) {
             val mat = Mat()
@@ -77,6 +76,12 @@ object ImageUtils {
             matList.add(mat)
         }
         return matList
+    }
+
+    fun convertBitmapToMat(bitmap: Bitmap): Mat {
+        val mat = Mat()
+        Utils.bitmapToMat(bitmap, mat)
+        return mat
     }
 
 }

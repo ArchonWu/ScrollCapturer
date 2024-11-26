@@ -46,6 +46,8 @@ class ScreenCaptureService : Service() {
 
     private var imagesProduced = 0
 
+    private val isUseStreamlined = true
+
     @Inject
     lateinit var imageCombiner: ImageCombiner
 
@@ -102,8 +104,10 @@ class ScreenCaptureService : Service() {
 
         while (isScrolling) {
             val screenshotBitmap = captureScreenshot()
-//            imageCombiner.processServiceCapturedImage(screenshotBitmap)     // TODO: streamlined method
-            if (screenshotBitmap != null) {
+
+            if (isUseStreamlined) {
+                imageCombiner.processServiceCapturedImage(screenshotBitmap)
+            } else if (screenshotBitmap != null) {
                 imageCombiner.addScreenshot(screenshotBitmap)
             } else {
                 Log.e(tag, "screenshotBitmap is null!")

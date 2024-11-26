@@ -36,7 +36,20 @@ class ResultScreenViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    fun startStitching() {
+    fun getResultImage() {
+        // if from user-added images, use imageCombiner to stitch the image
+        if (imageCombiner.getUserAddedImagesSize() > 0) {
+            startStitching()
+        } else {
+            // if from screen capture service, could be in the progress of stitching or not
+            // maybe continually check if complete or not?
+            // or notify ResultScreen if it is finally complete?
+
+
+        }
+    }
+
+    private fun startStitching() {
         viewModelScope.launch {
             _isLoading.value = true
             val result = withContext(Dispatchers.Default) {
