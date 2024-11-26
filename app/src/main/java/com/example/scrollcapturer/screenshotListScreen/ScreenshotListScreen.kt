@@ -183,19 +183,26 @@ fun CaptureFloatingActionButton(
     }
 
     var showPermissionDialog by remember { mutableStateOf(false) }
+    var permissionGranted by remember { mutableStateOf(false) }
 
     FloatingActionButton(onClick = {
-        showPermissionDialog = true
+        if (permissionGranted) {
+            startMediaProjectionLauncher.launch(
+                screenCaptureIntent
+            )
+        } else {
+            showPermissionDialog = true
+        }
     }) {
         Icon(imageVector = Icons.Default.Cast, contentDescription = null)
 
-
-        if (showPermissionDialog) {
+        if (showPermissionDialog && !permissionGranted) {
             AlertDialog(shape = RoundedCornerShape(0.dp),
                 onDismissRequest = {
                     showPermissionDialog = false
                 },
-                title = { Text("Accessibility permission required for Auto Mode") },
+                title = { Text("Permission Required") },
+                text = { Text("Accessibility permission is required for Auto Mode") },
                 confirmButton = {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -216,9 +223,7 @@ fun CaptureFloatingActionButton(
                         Button(
                             onClick = {
                                 onRequestAccessibilityPermission()
-                                startMediaProjectionLauncher.launch(
-                                    screenCaptureIntent
-                                )
+                                permissionGranted = true
                                 showPermissionDialog = false
                             },
                             shape = RoundedCornerShape(0.dp),
@@ -232,6 +237,12 @@ fun CaptureFloatingActionButton(
                 })
         }
     }
+}
+
+fun checkAccessibilityPermission(context: Context): Boolean {
+    val enabledServices =
+        Settings.Secure.getString(context.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
+    return enabledServices?.contains(context.packageName) == true
 }
 
 @Composable
