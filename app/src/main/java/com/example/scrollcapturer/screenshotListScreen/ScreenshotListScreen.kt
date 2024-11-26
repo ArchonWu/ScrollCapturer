@@ -197,46 +197,55 @@ fun CaptureFloatingActionButton(
         Icon(imageVector = Icons.Default.Cast, contentDescription = null)
 
         if (showPermissionDialog && !permissionGranted) {
-            AlertDialog(shape = RoundedCornerShape(0.dp),
-                onDismissRequest = {
+            PermissionDialog(
+                onDismiss = { showPermissionDialog = false },
+                onGrantPermission = {
+                    onRequestAccessibilityPermission()
+                    permissionGranted = true
                     showPermissionDialog = false
-                },
-                title = { Text("Permission Required") },
-                text = { Text("Accessibility permission is required for Auto Mode") },
-                confirmButton = {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        // DismissButton
-                        Button(
-                            onClick = { showPermissionDialog = false },
-                            shape = RoundedCornerShape(0.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.LightGray, contentColor = Color.Black
-                            )
-                        ) {
-                            Text("Cancel")
-                        }
-
-                        // ConfirmButton
-                        Button(
-                            onClick = {
-                                onRequestAccessibilityPermission()
-                                permissionGranted = true
-                                showPermissionDialog = false
-                            },
-                            shape = RoundedCornerShape(0.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.LightGray, contentColor = Color.Black
-                            )
-                        ) {
-                            Text("Grant Permission")
-                        }
-                    }
-                })
+                }
+            )
         }
     }
+}
+
+@Composable
+fun PermissionDialog(
+    onDismiss: () -> Unit,
+    onGrantPermission: () -> Unit
+) {
+    AlertDialog(shape = RoundedCornerShape(0.dp),
+        onDismissRequest = onDismiss,
+        title = { Text("Permission Required") },
+        text = { Text("Accessibility permission is required for using auto mode") },
+        confirmButton = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                // DismissButton
+                Button(
+                    onClick = onDismiss,
+                    shape = RoundedCornerShape(0.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.LightGray, contentColor = Color.Black
+                    )
+                ) {
+                    Text("Cancel")
+                }
+
+                // ConfirmButton
+                Button(
+                    onClick = onGrantPermission,
+                    shape = RoundedCornerShape(0.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.LightGray, contentColor = Color.Black
+                    )
+                ) {
+                    Text("Grant Permission")
+                }
+            }
+        })
 }
 
 @Composable
