@@ -13,6 +13,7 @@ import android.hardware.display.VirtualDisplay
 import android.media.ImageReader
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
+import android.os.Binder
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
@@ -23,6 +24,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -56,7 +59,6 @@ class ScreenCaptureService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d(tag, intent.toString())
         when (intent?.action) {
             Actions.START_PROJECTION.name -> startProjection(intent)      // start service
             Actions.STOP_PROJECTION.name -> stopProjection()              // stop service
@@ -122,7 +124,6 @@ class ScreenCaptureService : Service() {
     }
 
     private fun completeCapture() {
-        Log.d(tag, "completeCapture()")
         isScrolling = false
         isCollapsing = true
 
@@ -200,7 +201,6 @@ class ScreenCaptureService : Service() {
                 Log.e(tag, "captured image: $imagesProduced, ${imageFile.absolutePath}")
             }
         } catch (e: Exception) {
-            Log.e(tag, "error capturing screen")
             Log.e(tag, e.toString())
         } finally {
             fos?.close()

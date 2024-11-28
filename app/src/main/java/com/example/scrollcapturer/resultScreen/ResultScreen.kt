@@ -1,5 +1,6 @@
 package com.example.scrollcapturer.resultScreen
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -70,6 +71,7 @@ fun ResultScreen(
 //        resultScreenViewModel.startStitching()
 
         // decide how to get the ResultImage?
+        Log.d("ResultScreen", "LaunchedEffect")
         resultScreenViewModel.getResultImage()
     }
 

@@ -10,6 +10,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.example.scrollcapturer.models.SiftMatchResult
 import com.example.scrollcapturer.utils.ImageUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import org.opencv.android.Utils
 import org.opencv.calib3d.Calib3d
 import org.opencv.calib3d.Calib3d.RANSAC
@@ -39,24 +41,37 @@ class ImageCombiner {
     private val tag = "ImageCombiner"
 
     private var tempResult: Mat? = null
-    private var count: Int = 0
+    private var totalCount: Int = 0
+    private var completedCount: Int = 0
+
+    fun getProgressions(): List<Int> {
+        return listOf(totalCount, completedCount)
+    }
+
+    fun getResult(): ImageBitmap {
+        if (totalCount == completedCount && tempResult != null) {
+            this.resultImageBitmap = ImageUtils.convertMatToBitmap(tempResult!!).asImageBitmap()
+        }
+        return this.resultImageBitmap
+    }
 
     fun processServiceCapturedImage(screenshotBitmap: Bitmap?) {
 
-        if (tempResult == null && screenshotBitmap != null) {
+        if (tempResult == null && screenshotBitmap != null) {       // first image
             val capturedMat = ImageUtils.convertBitmapToMat(screenshotBitmap)
             tempResult = capturedMat
-            count++
-            Log.d(tag, "processServiceCapturedImage() count: $count, ${tempResult!!.size()}")
+            totalCount++
+            completedCount++
+            Log.d(tag, "processServiceCapturedImage() count: $totalCount, ${tempResult!!.size()}")
 
         } else if (screenshotBitmap != null) {
             val capturedMat = ImageUtils.convertBitmapToMat(screenshotBitmap)
             tempResult = stitchImage(tempResult!!, capturedMat)
-            count++
-            Log.d(tag, "processServiceCapturedImage() count: $count, ${tempResult!!.size()}")
+            totalCount++
+            Log.d(tag, "processServiceCapturedImage() count: $totalCount, ${tempResult!!.size()}")
 
         } else {
-            Log.d(tag, "processServiceCapturedImage(): $tempResult, $screenshotBitmap, $count")
+            Log.d(tag, "processServiceCapturedImage(): $tempResult, $screenshotBitmap, $totalCount")
         }
 
     }
@@ -80,7 +95,7 @@ class ImageCombiner {
         Log.d(tag, "stitchAllImages(): finished")
         resultImageBitmap = userCombineResult as ImageBitmap
 
-        return resultImageBitmap
+        return getResult()
     }
 
     // perform the stitching (combining two images based on their good feature matches)
@@ -139,6 +154,8 @@ class ImageCombiner {
         imageMat1
             .submat(0, rowsToCopy, 0, imageMat1.cols())
             .copyTo(resultImageMat.submat(0, rowsToCopy, 0, imageMat1.cols()))
+
+        completedCount++
 
         return resultImageMat
     }
@@ -289,7 +306,7 @@ class ImageCombiner {
         return userAddedImages.size
     }
 
-    fun clearUserAddedImages(){
+    fun clearUserAddedImages() {
         userAddedImages = mutableListOf<Bitmap>()
     }
 

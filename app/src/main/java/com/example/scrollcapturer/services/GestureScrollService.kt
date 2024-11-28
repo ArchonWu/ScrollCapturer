@@ -31,10 +31,7 @@ class GestureScrollService : AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-
-        if (event == null) return
-
-        when (event.eventType) {
+        when (event?.eventType) {
             AccessibilityEvent.TYPE_VIEW_CLICKED -> stopAutoScroll()
             else -> {}
         }
@@ -75,8 +72,6 @@ class GestureScrollService : AccessibilityService() {
         val strokeDescription = GestureDescription.StrokeDescription(path, 0L, 800L)
         val gestureDescription = GestureDescription.Builder().addStroke(strokeDescription).build()
         dispatchGesture(gestureDescription, null, null)
-
-        Log.d(tag, "scrollDownByHalfPage()")
     }
 
     // assumes the status bar is opened,
@@ -91,8 +86,6 @@ class GestureScrollService : AccessibilityService() {
         val strokeDescription = GestureDescription.StrokeDescription(path, 0L, 500L)
         val gestureDescription = GestureDescription.Builder().addStroke(strokeDescription).build()
         dispatchGesture(gestureDescription, null, null)
-
-        Log.d(tag, "collapseStatusBar()")
     }
 
     enum class Actions {

@@ -129,7 +129,7 @@ fun initializeOpenCV() {
     if (OpenCVLoader.initLocal()) {
         Log.d("OpenCV", "OpenCV successfully loaded.")
     } else {
-        Log.d("OpenCV", "OpenCV initialization failed.")
+        Log.e("OpenCV", "OpenCV initialization failed.")
     }.toInt()
 }
 

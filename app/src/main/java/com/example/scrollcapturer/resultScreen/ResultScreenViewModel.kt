@@ -13,6 +13,7 @@ import com.example.scrollcapturer.ImageCombiner
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,18 +37,22 @@ class ResultScreenViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    private var isCapturing = true
-
     fun getResultImage() {
         // if from user-added images, use imageCombiner to stitch the image
         if (imageCombiner.getUserAddedImagesSize() > 0) {
             startStitching()
         } else {
-            // if from screen capture service, could be in the progress of stitching or not
-            // maybe continually check if complete or not?
-            // or notify ResultScreen if it is finally complete?
-
-
+            var progression = imageCombiner.getProgressions()
+            var completed = progression[0]
+            var total = progression[1]
+            while (completed != total) {
+                _isLoading.value = true
+                progression = imageCombiner.getProgressions()
+                completed = progression[0]
+                total = progression[1]
+            }
+            _resultImageBitmap.value = imageCombiner.getResult()
+            _isLoading.value = false
         }
     }
 
