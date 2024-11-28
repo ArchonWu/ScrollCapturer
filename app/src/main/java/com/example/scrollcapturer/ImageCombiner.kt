@@ -32,8 +32,6 @@ class ImageCombiner {
     private var screenHeight by mutableIntStateOf(0)
 
     private var userAddedImages = mutableListOf<Bitmap>()
-    private var userCombineResult: ImageBitmap? = null
-
     private var resultImageBitmap: ImageBitmap by mutableStateOf(ImageBitmap(1, 1))
 
     private var tempResult: Mat? = null
@@ -47,6 +45,7 @@ class ImageCombiner {
     }
 
     fun getResult(): ImageBitmap {
+        Log.d(tag, "$totalCount, $completedCount")
         if (totalCount == completedCount && tempResult != null) {
             this.resultImageBitmap = ImageUtils.convertMatToBitmap(tempResult!!).asImageBitmap()
         }
@@ -76,9 +75,6 @@ class ImageCombiner {
 
     fun stitchAllImages(): ImageBitmap {
         val serviceCapturedImageMats = ImageUtils.convertBitmapsToMats(userAddedImages)
-        userCombineResult =
-            ImageUtils.convertMatToBitmap(serviceCapturedImageMats[0]).asImageBitmap()
-
         completedCount = 1
         totalCount = userAddedImages.size
 
@@ -88,13 +84,10 @@ class ImageCombiner {
             resultStitchedImage = stitchImage(resultStitchedImage, serviceCapturedImageMats[i])
             completedCount++
         }
-        userCombineResult =
-            ImageUtils.convertMatToBitmap(resultStitchedImage).asImageBitmap()
 
-        resetImageCombiner()
-        resultImageBitmap = userCombineResult as ImageBitmap
+        resultImageBitmap = ImageUtils.convertMatToBitmap(resultStitchedImage).asImageBitmap()
 
-        return getResult()
+        return resultImageBitmap
     }
 
     // perform the stitching (combining two images based on their good feature matches)
@@ -282,7 +275,6 @@ class ImageCombiner {
     fun resetImageCombiner() {
         userAddedImages = mutableListOf<Bitmap>()
         resultImageBitmap = (ImageBitmap(1, 1))
-        userCombineResult = null
         tempResult = null
         completedCount = 0
         totalCount = 0
