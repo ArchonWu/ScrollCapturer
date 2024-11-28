@@ -36,6 +36,8 @@ class ResultScreenViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+    private var isCapturing = true
+
     fun getResultImage() {
         // if from user-added images, use imageCombiner to stitch the image
         if (imageCombiner.getUserAddedImagesSize() > 0) {

@@ -288,4 +288,9 @@ class ImageCombiner {
     fun getUserAddedImagesSize(): Int {
         return userAddedImages.size
     }
+
+    fun clearUserAddedImages(){
+        userAddedImages = mutableListOf<Bitmap>()
+    }
+
 }

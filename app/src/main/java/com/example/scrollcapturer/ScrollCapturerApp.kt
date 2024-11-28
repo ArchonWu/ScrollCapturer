@@ -62,6 +62,7 @@ fun ScrollCapturerApp(
                     onNextButtonClicked = { navController.navigate(Routes.Preview.name) },
                     onRequestAccessibilityPermission =
                     { requestAccessibilityPermission(context as MainActivity) },
+                    onResetButtonClicked = { imageCombiner.clearServiceCapturedImages() },
                     modifier = Modifier
                 )
             }
