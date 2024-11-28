@@ -13,7 +13,6 @@ import android.hardware.display.VirtualDisplay
 import android.media.ImageReader
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
-import android.os.Binder
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
@@ -24,8 +23,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -33,8 +30,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class ScreenCaptureService : Service() {
-
-    private val tag = "ScreenCaptureService"
 
     private var imageReader: ImageReader? = null
     private var virtualDisplay: VirtualDisplay? = null
@@ -53,6 +48,8 @@ class ScreenCaptureService : Service() {
 
     @Inject
     lateinit var imageCombiner: ImageCombiner
+
+    private val tag = "ScreenCaptureService"
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -102,7 +99,7 @@ class ScreenCaptureService : Service() {
 
         isScrolling = true
         isCollapsing = false
-        imageCombiner.clearServiceCapturedImages()
+        imageCombiner.resetImageCombiner()
 
         while (isScrolling) {
             val screenshotBitmap = captureScreenshot()

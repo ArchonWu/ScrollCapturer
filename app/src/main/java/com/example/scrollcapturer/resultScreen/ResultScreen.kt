@@ -68,10 +68,7 @@ fun ResultScreen(
     }
 
     LaunchedEffect(Unit) {
-//        resultScreenViewModel.startStitching()
-
-        // decide how to get the ResultImage?
-        Log.d("ResultScreen", "LaunchedEffect")
+        // decide how to get the ResultImage
         resultScreenViewModel.getResultImage()
     }
 

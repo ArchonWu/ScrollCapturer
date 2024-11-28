@@ -10,8 +10,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.example.scrollcapturer.models.SiftMatchResult
 import com.example.scrollcapturer.utils.ImageUtils
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import org.opencv.android.Utils
 import org.opencv.calib3d.Calib3d
 import org.opencv.calib3d.Calib3d.RANSAC
@@ -38,11 +36,11 @@ class ImageCombiner {
 
     private var resultImageBitmap: ImageBitmap by mutableStateOf(ImageBitmap(1, 1))
 
-    private val tag = "ImageCombiner"
-
     private var tempResult: Mat? = null
     private var totalCount: Int = 0
     private var completedCount: Int = 0
+
+    private val tag = "ImageCombiner"
 
     fun getProgressions(): List<Int> {
         return listOf(totalCount, completedCount)
@@ -77,22 +75,23 @@ class ImageCombiner {
     }
 
     fun stitchAllImages(): ImageBitmap {
-        Log.d(tag, "stitchAllImages(), ${userAddedImages.size}")
-
         val serviceCapturedImageMats = ImageUtils.convertBitmapsToMats(userAddedImages)
         userCombineResult =
             ImageUtils.convertMatToBitmap(serviceCapturedImageMats[0]).asImageBitmap()
+
+        completedCount = 1
+        totalCount = userAddedImages.size
 
         // iteratively stitches two images in the list: do feature matching, and images stitching
         var resultStitchedImage = serviceCapturedImageMats[0]
         for (i in 1 until serviceCapturedImageMats.size) {
             resultStitchedImage = stitchImage(resultStitchedImage, serviceCapturedImageMats[i])
+            completedCount++
         }
         userCombineResult =
             ImageUtils.convertMatToBitmap(resultStitchedImage).asImageBitmap()
 
-        clearServiceCapturedImages()
-        Log.d(tag, "stitchAllImages(): finished")
+        resetImageCombiner()
         resultImageBitmap = userCombineResult as ImageBitmap
 
         return getResult()
@@ -100,17 +99,12 @@ class ImageCombiner {
 
     // perform the stitching (combining two images based on their good feature matches)
     private fun stitchImage(imageMat1: Mat, imageMat2: Mat): Mat {
-        Log.d("ImageCombiner", "start stitchImage: ${imageMat1.size()}, ${imageMat2.size()}")
-        Log.d("ImageCombiner", "Insets: $statusBarHeightPx, $navigationBarHeightPx, $screenHeight")
         val siftMatchResult = siftFeatureMatching(imageMat1, imageMat2)
 
         // apply transformation based on good matches and stitch images together
         val homographyMatrix = calculateHomographyMatrix(siftMatchResult)
-
-        if (homographyMatrix == null) {
-            // combine two images without homography
+            ?: // combine two images without homography
             return simpleStitch(imageMat1, imageMat2)
-        }
 
         // get the corners of imageMat2
         val corners = MatOfPoint2f(
@@ -188,8 +182,6 @@ class ImageCombiner {
     // code adapted from opencv documentation:
     // https://docs.opencv.org/4.x/d7/dff/tutorial_feature_homography.html
     private fun calculateHomographyMatrix(siftMatchResult: SiftMatchResult): Mat? {
-
-//        Log.d(tag, "${siftMatchResult.goodMatches.size()}")
 
         if (siftMatchResult.goodMatches.toList().size < 4) {
             // not enough matches, cannot calculate homography
@@ -287,9 +279,13 @@ class ImageCombiner {
         userAddedImages += screenshotBitmap
     }
 
-    fun clearServiceCapturedImages() {
+    fun resetImageCombiner() {
         userAddedImages = mutableListOf<Bitmap>()
         resultImageBitmap = (ImageBitmap(1, 1))
+        userCombineResult = null
+        tempResult = null
+        completedCount = 0
+        totalCount = 0
     }
 
     // a one-time add all method
@@ -304,10 +300,6 @@ class ImageCombiner {
 
     fun getUserAddedImagesSize(): Int {
         return userAddedImages.size
-    }
-
-    fun clearUserAddedImages() {
-        userAddedImages = mutableListOf<Bitmap>()
     }
 
 }

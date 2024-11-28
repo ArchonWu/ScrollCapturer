@@ -259,28 +259,28 @@ fun PreviewFloatingActionButton(onNextButtonClicked: () -> Unit) {
     }
 }
 
-//@Preview
-//@Composable
-//fun ScreenshotListScreenPreview() {
-//    val previewScreenshotListViewModel = ScreenshotListViewModel().apply {
-//        addImageUris(
-//            listOf(
-//                Uri.parse(""),
-//                Uri.parse(""),
-//                Uri.parse(""),
-//                Uri.parse(""),
-//                Uri.parse(""),
-//                Uri.parse(""),
-//                Uri.parse("")
-//            )
-//        )
-//    }
-//
-//    ScrollCapturerTheme() {
-//        ScreenshotListScreen(
-//            screenshotListViewModel = previewScreenshotListViewModel,
-//            modifier = Modifier.fillMaxHeight(),
-//        )
-//    }
-//}
+@Preview
+@Composable
+fun ScreenshotListScreenPreview() {
+    val previewScreenshotListViewModel = ScreenshotListViewModel().apply {
+        addImageUris(
+            listOf(
+                Uri.parse(""),
+                Uri.parse(""),
+                Uri.parse(""),
+                Uri.parse(""),
+                Uri.parse(""),
+                Uri.parse(""),
+                Uri.parse("")
+            )
+        )
+    }
+
+    ScrollCapturerTheme {
+        ScreenshotListScreen(
+            screenshotListViewModel = previewScreenshotListViewModel,
+            modifier = Modifier.fillMaxHeight(),
+        )
+    }
+}
 
